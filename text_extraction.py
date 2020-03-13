@@ -1,8 +1,10 @@
 import pdftotext
-from nltk.tokenize import word_tokenize
 import re
-from nltk.corpus import gutenberg, nps_chat
 import nltk
+from nltk.tokenize import RegexpTokenizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import gutenberg, nps_chat
+
 
 PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
 TEXT_FILE = 'lawText.txt'
@@ -46,18 +48,37 @@ def isTitulo(token):
 def isKeyword(word):
     return isArticulo(word) or isSeccion(word) or isCapitulo(word) or isTitulo(word)
 
+def manualTokenize(text):
+    tokens = nltk.word_tokenize(text)
+    articulos = [""]
+    for token in tokens: 
+        if token == 'Título' or token == 'Capítulo' or token == 'Sección' or token == 'Artículo':
+            articulos.append(token)
+        else:
+            articulos[len(articulos)-1] += (' ' + token)
+    return articulos
+
 def tokenizeText(text):
-    # This is needed for tokenize well
+    # Cleaning text format to tokenize
     single_whitespace = re.compile(r"\s+")
     text = re.sub(r"\n", " ", text).replace("\r", " ")
     text = single_whitespace.sub(" ", text).strip()
-    spanish_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
-    sentences = spanish_tokenizer.tokenize(text)
+    # Tokenization by common tokenizer 
+    # Want to change for tokenization by important words
+    # spanish_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
+    # sentences = spanish_tokenizer.tokenize(text) (.*?)Artículo (?:(?!X).)*
+    # tokenizer = RegexpTokenizer('')
+    # sentences = tokenizer.tokenize(text)
+    sentences = manualTokenize(text)
+    print(sentences)
+    print(len(sentences))
+    # Getting important words, this is just for seeing that stract them correctly
+    # My objetive is to make a structure with all of them
     articulos = filter(isArticulo, sentences)
     secciones = filter(isSeccion, sentences)
     capitulos = filter(isCapitulo, sentences)
-    titulos= filter(isTitulo, sentences)
-    return {'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos, 'titulos': titulos}
+    titulos = filter(isTitulo, sentences)
+    return {'partes': sentences, 'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos, 'titulos': titulos}
 
 def saveText(text):
     textFile = open("outputs/" + TEXT_FILE, "w+")
@@ -68,7 +89,7 @@ def saveTokens(filename, tokens):
     textFile = open("outputs/" + filename + '.txt', "w+")
     for token in tokens:
         textFile.write(token + '\n')
-        print(token)
+        # print(token)
     textFile.close()
 
 def readTokens(documento):
@@ -94,6 +115,7 @@ def main():
     saveTokens('secciones', tokens['secciones'])
     saveTokens('capitulos', tokens['capitulos'])
     saveTokens('titulos', tokens['titulos'])
+    saveTokens('partes', tokens['partes'])
     #readTokens(TOKENS_FILE)
 
 
