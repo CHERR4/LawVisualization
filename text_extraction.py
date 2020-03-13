@@ -1,4 +1,4 @@
-import PyPDF2
+import pdftotext
 from nltk.tokenize import word_tokenize
 import re
 from nltk.corpus import gutenberg, nps_chat
@@ -8,13 +8,12 @@ PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
 TEXT_FILE = 'lawText.txt'
 TOKENS_FILE = 'tokens.txt'
 
-
-def readTextFromPfd(pdf, min):
-    pdfReader = PyPDF2.PdfFileReader(pdf)
-    # Extract text from pdf
+def readTextFromPfd():
+    with open(PDF_FILE, "rb") as f:
+        pdf = pdftotext.PDF(f)
     text = ""
-    for i in range(min, pdfReader.numPages-1):
-        text += pdfReader.getPage(i).extractText()
+    for page in pdf: 
+           text += page
     return text
 
 def cleanText(text):
@@ -28,28 +27,45 @@ def cleanText(text):
     text = re.sub(r"Núm. 291 / [0-9]+", "", text)
     return text
 
-def articulo(token):
+def isArticulo(token):
     pattern = re.compile('^Artículo')
     return pattern.match(token)
 
+def isCapitulo(token):
+    pattern = re.compile('^Capítulo')
+    return pattern.match(token)
+
+def isSeccion(token):
+    pattern = re.compile('^Sección')
+    return pattern.match(token)
+
+def isTitulo(token):
+    pattern = re.compile('^Título')
+    return pattern.match(token)
+
+def isKeyword(word):
+    return isArticulo(word) or isSeccion(word) or isCapitulo(word) or isTitulo(word)
+
 def tokenizeText(text):
     # This is needed for tokenize well
-    text = re.sub(r"\n", " ", text)
+    single_whitespace = re.compile(r"\s+")
+    text = re.sub(r"\n", " ", text).replace("\r", " ")
+    text = single_whitespace.sub(" ", text).strip()
     spanish_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
     sentences = spanish_tokenizer.tokenize(text)
-    articulos = filter(articulo, sentences)
-    # print(sentences)
-    # for elemento in articulos:
-        # print(elemento)
-    return articulos
+    articulos = filter(isArticulo, sentences)
+    secciones = filter(isSeccion, sentences)
+    capitulos = filter(isCapitulo, sentences)
+    titulos= filter(isTitulo, sentences)
+    return {'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos, 'titulos': titulos}
 
 def saveText(text):
-    textFile = open(TEXT_FILE, "w+")
+    textFile = open("outputs/" + TEXT_FILE, "w+")
     textFile.write(text)
     textFile.close()
 
-def saveTokens(tokens):
-    textFile = open(TOKENS_FILE, "w+")
+def saveTokens(filename, tokens):
+    textFile = open("outputs/" + filename + '.txt', "w+")
     for token in tokens:
         textFile.write(token + '\n')
         print(token)
@@ -61,23 +77,25 @@ def readTokens(documento):
     textFile.close()
     return tokens
 
-
 def main():
+    '''
     print("1) full execution\n")
     print("2) reload text from textFile\n")
     print("3) reload tokens from tokensFile\n")
     mode = int( input ("Insert mode of execution: \n"))
-    # switch (mode)
-    pdf = open(PDF_FILE, 'rb')
-    text = readTextFromPfd(pdf, 1)
+    switch (mode)
+    '''
+    text = readTextFromPfd()
     cleaned_text = cleanText(text)
     # print(cleaned_text)
     saveText(cleaned_text)
     tokens = tokenizeText(cleaned_text)
-    print(tokens)
-    saveTokens(tokens)
+    saveTokens('articulos', tokens['articulos'])
+    saveTokens('secciones', tokens['secciones'])
+    saveTokens('capitulos', tokens['capitulos'])
+    saveTokens('titulos', tokens['titulos'])
     #readTokens(TOKENS_FILE)
-    
+
 
 if __name__ == "__main__":
     main()
