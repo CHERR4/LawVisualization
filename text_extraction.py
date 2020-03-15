@@ -1,10 +1,22 @@
 import pdftotext
+import json
 import re
 import nltk
+import pickle
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import gutenberg, nps_chat
+from anytree import Node, RenderTree
+from anytree.exporter import DictExporter, JsonExporter
+from collections import OrderedDict
 
+"""
+Un título tiene capítulos
+Un capítulo tiene secciones
+Un capítulo tien artículos
+Una sección tiene artículos
+Un artículo tiene puntos
+"""
 
 PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
 TEXT_FILE = 'lawText.txt'
@@ -70,8 +82,8 @@ def tokenizeText(text):
     # tokenizer = RegexpTokenizer('')
     # sentences = tokenizer.tokenize(text)
     sentences = manualTokenize(text)
-    print(sentences)
-    print(len(sentences))
+    #print(sentences)
+    #print(len(sentences))
     # Getting important words, this is just for seeing that stract them correctly
     # My objetive is to make a structure with all of them
     articulos = filter(isArticulo, sentences)
@@ -79,6 +91,63 @@ def tokenizeText(text):
     capitulos = filter(isCapitulo, sentences)
     titulos = filter(isTitulo, sentences)
     return {'partes': sentences, 'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos, 'titulos': titulos}
+
+def subtokenizeToken(token):
+    subtokens = [""]
+    words = nltk.word_tokenize(token)
+    count = 0
+    for word in words:
+        if  len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
+            subtokens.extend(word)
+            """
+        elif word.isnumeric() and count + 1 < len(words) and words[count + 1] == '.':
+            subtokens.extend(word)
+            """
+        else:
+            subtokens[len(subtokens) - 1] += (' ' + word)
+        count += 1
+    return subtokens
+
+def subtokenizeText(tokens):
+    subtokens = []
+    for token in tokens:
+        subtokens.extend(subtokenizeToken(token))
+    return subtokens
+
+def createTokensTree(tokens):
+    root = Node("Root")
+    lastTitulo = None
+    lastCapitulo = None
+    lastSeccion = None
+    lastArticulo = None
+    currentNode = None
+    for token in tokens:
+        if re.match("^ Título", token):
+            currentNode = Node(token, parent=root)
+            lastTitulo = currentNode
+            lastCapitulo = None
+            lastSeccion = None
+            lastArticulo = None
+        elif re.match('^ Capítulo', token):
+            currentNode = Node(token, parent=lastTitulo)
+            lastCapitulo = currentNode
+            lastSeccion = None
+            lastArticulo = None
+        elif re.match('^ Sección', token):
+            currentNode = Node(token, parent=lastCapitulo)
+            lastSeccion = currentNode
+            lastArticulo = None
+        elif re.match('^ Artículo', token):
+            if lastSeccion == None:
+                currentNode = Node(token, parent=lastCapitulo)
+            else:
+                currentNode = Node(token, parent=lastSeccion)
+            lastArticulo = currentNode
+        elif re.match('^ [a-z] [)]', token):
+            currentNode = Node(token, parent=lastArticulo)
+    for pre, fill, node in RenderTree(root):
+        print("%s%s" % (pre, node.name))
+    return root
 
 def saveText(text):
     textFile = open("outputs/" + TEXT_FILE, "w+")
@@ -89,7 +158,6 @@ def saveTokens(filename, tokens):
     textFile = open("outputs/" + filename + '.txt', "w+")
     for token in tokens:
         textFile.write(token + '\n')
-        # print(token)
     textFile.close()
 
 def readTokens(documento):
@@ -97,6 +165,24 @@ def readTokens(documento):
     tokens = textFile.read()
     textFile.close()
     return tokens
+
+def createDictTree(tree):
+    exporter = DictExporter(dictcls=OrderedDict, attriter=sorted)
+    dictTree = exporter.export(tree)
+    return dictTree
+
+def createJsonTree(tree):
+    exporter = JsonExporter(indent=2, sort_keys=True)
+    jsonTree = exporter.export(tree)
+    return jsonTree
+
+def saveDictTree(dictTree):
+    with open('outputs/dictTree.p', 'wb') as file:
+        pickle.dump(dictTree, file, protocol=pickle.HIGHEST_PROTOCOL)
+
+def saveJsonTree(jsonTree):
+    with open('outputs/jsonTree.txt', 'w') as file:
+        json.dump(jsonTree, file)
 
 def main():
     '''
@@ -111,12 +197,20 @@ def main():
     # print(cleaned_text)
     saveText(cleaned_text)
     tokens = tokenizeText(cleaned_text)
+    subtokens = subtokenizeText(tokens['partes'])
     saveTokens('articulos', tokens['articulos'])
     saveTokens('secciones', tokens['secciones'])
     saveTokens('capitulos', tokens['capitulos'])
     saveTokens('titulos', tokens['titulos'])
     saveTokens('partes', tokens['partes'])
-    #readTokens(TOKENS_FILE)
+    saveTokens('subtokens', subtokens)
+    tree = createTokensTree(subtokens)
+    dictTree = createDictTree(tree)
+    jsonTree = createJsonTree(tree)
+    saveDictTree(dictTree)
+    saveJsonTree(jsonTree)
+
+    # readTokens(TOKENS_FILE)
 
 
 if __name__ == "__main__":
