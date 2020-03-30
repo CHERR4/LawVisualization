@@ -1,3 +1,4 @@
+import os,glob,subprocess
 import pdftotext
 import json
 import re
@@ -6,8 +7,9 @@ import pickle
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import gutenberg, nps_chat
-from anytree import Node, RenderTree
+from anytree import Node, RenderTree, PreOrderIter
 from anytree.exporter import DictExporter, JsonExporter
+from anytree.search import find, find_by_attr, findall
 from collections import OrderedDict
 
 """
@@ -21,6 +23,23 @@ Un artículo tiene puntos
 PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
 TEXT_FILE = 'lawText.txt'
 TOKENS_FILE = 'tokens.txt'
+LATEX_HEADER = r'''\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{imakeidx}
+\makeindex
+
+\begin{document}
+
+\tableofcontents
+'''
+LATEX_FOOTER = r'''\printindex
+\end{document}'''
+LATEX_TITLE = r"\title{Boletín Ofcial del Parlamento de Canarias}"
+LATEX_DATE = r"\date{22 de septiembre de 2016}"
+LATEX_SECTION_TOC_OPEN = r'''\addcontentsline{toc}{section}{'''
+LATEX_SECTION_OPEN = r'''}
+\section*{'''
+
 
 def readTextFromPfd():
     with open(PDF_FILE, "rb") as f:
@@ -68,6 +87,21 @@ def manualTokenize(text):
             articulos.append(token)
         else:
             articulos[len(articulos)-1] += (' ' + token)
+    return articulos
+
+def manualTokenizeQuery(text):
+    tokens = nltk.word_tokenize(text)
+    articulos = [""]
+    lastIsToken = False
+    for token in tokens: 
+        if token == 'Título' or token == 'Capítulo' or token == 'Sección' or token == 'Artículo':
+            articulos.append(token)
+            lastIsToken = True
+        elif(not(token == 'Título' or token == 'Capítulo' or token == 'Sección' or token == 'Artículo') and lastIsToken):
+            articulos[len(articulos)-1] += (' ' + token)
+            lastIsToken = False
+        else:
+            lastIsToken = False
     return articulos
 
 def tokenizeText(text):
@@ -145,8 +179,8 @@ def createTokensTree(tokens):
             lastArticulo = currentNode
         elif re.match('^ [a-z] [)]', token):
             currentNode = Node(token, parent=lastArticulo)
-    for pre, fill, node in RenderTree(root):
-        print("%s%s" % (pre, node.name))
+    #for pre, fill, node in RenderTree(root):
+    #    print("%s%s" % (pre, node.name))
     return root
 
 def saveText(text):
@@ -184,6 +218,69 @@ def saveJsonTree(jsonTree):
     with open('outputs/jsonTree.txt', 'w') as file:
         json.dump(jsonTree, file)
 
+
+def searchToken(artículo, tree):
+    """
+    This method is for searching one articl giving the full tree
+    """
+    print("hola mundo")
+
+def exportTreeLatex(tree):
+    for node in PreOrderIter(tree):
+        print("Hola mundo")
+
+def exportTokensLatex(tokens):
+    document = LATEX_HEADER
+    for token in tokens:
+        if re.match("^ Título", token):
+            document += LATEX_SECTION_TOC_OPEN
+            document += token.split(' ', 1)[1]
+            document += LATEX_SECTION_OPEN
+            document += token.split(' ', 1)[1]
+            # document += token.split(' ', 2)[2]
+            document += r'''}
+            '''
+            # allExceptOne = " ".join(token.split(' ')[4:])
+            # document += allExceptOne
+        elif re.match('^ Capítulo', token):
+            print("hola")
+        elif re.match('^ Sección', token):
+            print("hola")
+        elif re.match('^ Artículo', token):
+            print("hola")
+        elif re.match('^ [a-z] [)]', token):
+            print("hola")
+    document += LATEX_FOOTER
+
+    with open('outputs/law.tex','w') as f:
+        f.write(document)
+
+    commandLine = subprocess.Popen(['pdflatex', 'outputs/law.tex'])
+    commandLine.communicate()
+
+    os.unlink('outputs/law.aux')
+    os.unlink('outputs/law.log')
+    os.unlink('outputs/law.tex')
+    return document
+
+# Tengo: busco un nodo y todos sus hijos a partir de una palabra por la que empiza
+# Quiero conseguir: me pasan una consulta: la tokenizo, obtengo todos los subnodos de orden menor en orden
+def searchNode(tree, sentence):
+    tokens = manualTokenizeQuery(sentence)
+    # this is becouse it introduces an space at first TODO fix
+    if(len(tokens) <= 2):
+        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.name))
+        for node in nodes:
+            for pre, fill, subnode in RenderTree(node):
+                print("%s%s" % (pre, subnode.name))
+    else:
+        sentence = " "
+        sentence = sentence.join(tokens[2:len(tokens)])
+        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.name))
+        for node in nodes:
+            searchNode(node, sentence)
+
+
 def main():
     '''
     print("1) full execution\n")
@@ -205,11 +302,13 @@ def main():
     saveTokens('partes', tokens['partes'])
     saveTokens('subtokens', subtokens)
     tree = createTokensTree(subtokens)
-    dictTree = createDictTree(tree)
-    jsonTree = createJsonTree(tree)
-    saveDictTree(dictTree)
-    saveJsonTree(jsonTree)
-
+    # dictTree = createDictTree(tree)
+    # jsonTree = createJsonTree(tree)
+    # saveDictTree(dictTree)
+    # saveJsonTree(jsonTree)
+    consulta = "Título VI quiero el Capítulo II , el Artículo 316"
+    searchNode(tree, consulta)
+    # exportTokensLatex(subtokens)
     # readTokens(TOKENS_FILE)
 
 
