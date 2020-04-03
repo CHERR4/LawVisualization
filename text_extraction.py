@@ -4,13 +4,18 @@ import json
 import re
 import nltk
 import pickle
+import squarify
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize import word_tokenize
-from nltk.corpus import gutenberg, nps_chat
-from anytree import Node, RenderTree, PreOrderIter
-from anytree.exporter import DictExporter, JsonExporter
+from nltk.corpus import gutenberg, nps_chat, stopwords
+from anytree import AnyNode, RenderTree, PreOrderIter
+from anytree.exporter import DictExporter, JsonExporter, DotExporter
 from anytree.search import find, find_by_attr, findall
 from collections import OrderedDict
+from wordcloud import WordCloud
+from stop_words import get_stop_words
+
+
 
 """
 Un título tiene capítulos
@@ -133,10 +138,6 @@ def subtokenizeToken(token):
     for word in words:
         if  len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
             subtokens.extend(word)
-            """
-        elif word.isnumeric() and count + 1 < len(words) and words[count + 1] == '.':
-            subtokens.extend(word)
-            """
         else:
             subtokens[len(subtokens) - 1] += (' ' + word)
         count += 1
@@ -149,7 +150,7 @@ def subtokenizeText(tokens):
     return subtokens
 
 def createTokensTree(tokens):
-    root = Node("Root")
+    root = AnyNode(id="Root", title="root")
     lastTitulo = None
     lastCapitulo = None
     lastSeccion = None
@@ -157,30 +158,48 @@ def createTokensTree(tokens):
     currentNode = None
     for token in tokens:
         if re.match("^ Título", token):
-            currentNode = Node(token, parent=root)
+            if(len(token) > 140):
+                currentNode = AnyNode(id = token, parent=root, title=token[0:140])
+            else:
+                currentNode = AnyNode(id = token, parent=root, title=token[0:len(token)])
             lastTitulo = currentNode
             lastCapitulo = None
             lastSeccion = None
             lastArticulo = None
         elif re.match('^ Capítulo', token):
-            currentNode = Node(token, parent=lastTitulo)
+            if(len(token) > 140):
+                currentNode = AnyNode(id = token, parent=lastTitulo, title=token[0:140])
+            else:
+                currentNode = AnyNode(id = token, parent=lastTitulo, title=token[0:len(token)])
             lastCapitulo = currentNode
             lastSeccion = None
             lastArticulo = None
         elif re.match('^ Sección', token):
-            currentNode = Node(token, parent=lastCapitulo)
+            if(len(token) > 140):
+                currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:140])
+            else:
+                currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:len(token)])
             lastSeccion = currentNode
             lastArticulo = None
         elif re.match('^ Artículo', token):
             if lastSeccion == None:
-                currentNode = Node(token, parent=lastCapitulo)
+                if(len(token) > 140):
+                    currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:140])
+                else:
+                    currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:len(token)])
             else:
-                currentNode = Node(token, parent=lastSeccion)
+                if(len(token) > 140):
+                    currentNode = AnyNode(id = token, parent=lastSeccion, title=token[0:140])
+                else:
+                    currentNode = AnyNode(id = token, parent=lastSeccion, title=token[0:len(token)])
             lastArticulo = currentNode
         elif re.match('^ [a-z] [)]', token):
-            currentNode = Node(token, parent=lastArticulo)
+            if(len(token) > 140):
+                currentNode = AnyNode(id = token, parent=lastArticulo, title=token[0:140])
+            else:
+                currentNode = AnyNode(id = token, parent=lastArticulo, title=token[0:len(token)])
     #for pre, fill, node in RenderTree(root):
-    #    print("%s%s" % (pre, node.name))
+    #    print("%s%s" % (pre, node))
     return root
 
 def saveText(text):
@@ -218,12 +237,9 @@ def saveJsonTree(jsonTree):
     with open('outputs/jsonTree.txt', 'w') as file:
         json.dump(jsonTree, file)
 
+def saveTreeAsGraph(tree):
+    DotExporter(tree).to_dotfile("outputs/tree.dot")
 
-def searchToken(artículo, tree):
-    """
-    This method is for searching one articl giving the full tree
-    """
-    print("hola mundo")
 
 def exportTreeLatex(tree):
     for node in PreOrderIter(tree):
@@ -269,16 +285,27 @@ def searchNode(tree, sentence):
     tokens = manualTokenizeQuery(sentence)
     # this is becouse it introduces an space at first TODO fix
     if(len(tokens) <= 2):
-        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.name))
+        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.title))
         for node in nodes:
             for pre, fill, subnode in RenderTree(node):
-                print("%s%s" % (pre, subnode.name))
+                print("%s%s" % (pre, subnode.id))
     else:
         sentence = " "
         sentence = sentence.join(tokens[2:len(tokens)])
-        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.name))
+        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.title))
         for node in nodes:
             searchNode(node, sentence)
+
+def printWordcloud(text):
+    stopwords_spanish = stopwords.words('spanish')
+    stopwords_spanish.extend(['Artículo', 'Boletín', 'Oficial', 'Parlamento', 'Canarias'])
+    # Here I can add all the worlds I dont like as stopwords
+    wc = WordCloud(background_color="white", max_words=2000,
+               stopwords=stopwords_spanish, contour_width=3, contour_color='steelblue')
+    # generate word cloud
+    wc.generate(text)
+    # store to file
+    wc.to_file("outputs/wordcloud.png")
 
 
 def main():
@@ -302,12 +329,14 @@ def main():
     saveTokens('partes', tokens['partes'])
     saveTokens('subtokens', subtokens)
     tree = createTokensTree(subtokens)
+    printWordcloud(text)
+    # saveTreeAsGraph(tree)
     # dictTree = createDictTree(tree)
     # jsonTree = createJsonTree(tree)
     # saveDictTree(dictTree)
     # saveJsonTree(jsonTree)
-    consulta = "Título VI quiero el Capítulo II , el Artículo 316"
-    searchNode(tree, consulta)
+    consulta = "Título II Capítulo I Artículo 64"
+    #searchNode(tree, consulta)
     # exportTokensLatex(subtokens)
     # readTokens(TOKENS_FILE)
 
