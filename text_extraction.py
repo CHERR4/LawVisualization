@@ -148,59 +148,87 @@ def subtokenizeText(tokens):
     for token in tokens:
         subtokens.extend(subtokenizeToken(token))
     return subtokens
-
+0
 def createTokensTree(tokens):
-    root = AnyNode(id="Root", title="root")
+    root = AnyNode(id="Root", name="root")
     lastTitulo = None
     lastCapitulo = None
     lastSeccion = None
     lastArticulo = None
     currentNode = None
     for token in tokens:
+        token = token.replace("/^\s*\s*$/", "")
         if re.match("^ Título", token):
-            if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=root, title=token[0:140])
-            else:
-                currentNode = AnyNode(id = token, parent=root, title=token[0:len(token)])
-            lastTitulo = currentNode
-            lastCapitulo = None
-            lastSeccion = None
-            lastArticulo = None
+            if not(re.match(".*[.].*", token[0:140])):
+                #node = find(root, filter(), maxlevel=2)
+                #if node is None:
+                if(len(token) > 140):
+                    currentNode = AnyNode(id = token, parent=root, name=token[0:140])
+                else:
+                    currentNode = AnyNode(id = token, parent=root, name=token[0:len(token)])
+                lastTitulo = currentNode
+                lastCapitulo = None
+                lastSeccion = None
+                lastArticulo = None
         elif re.match('^ Capítulo', token):
+            #node = find(root, filter(), maxlevel=3)
             if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=lastTitulo, title=token[0:140])
+                currentNode = AnyNode(id = token, parent=lastTitulo, name=token[0:140])
             else:
-                currentNode = AnyNode(id = token, parent=lastTitulo, title=token[0:len(token)])
+                currentNode = AnyNode(id = token, parent=lastTitulo, name=token[0:len(token)])
             lastCapitulo = currentNode
             lastSeccion = None
             lastArticulo = None
         elif re.match('^ Sección', token):
+            #node = find(root, filter(), maxlevel=4)
             if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:140])
+                currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:140])
             else:
-                currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:len(token)])
+                currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:len(token)])
             lastSeccion = currentNode
             lastArticulo = None
         elif re.match('^ Artículo', token):
+            #node = find(root, filter())
             if lastSeccion == None:
                 if(len(token) > 140):
-                    currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:140])
+                    currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:140])
                 else:
-                    currentNode = AnyNode(id = token, parent=lastCapitulo, title=token[0:len(token)])
+                    currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:len(token)])
             else:
                 if(len(token) > 140):
-                    currentNode = AnyNode(id = token, parent=lastSeccion, title=token[0:140])
+                    currentNode = AnyNode(id = token, parent=lastSeccion, name=token[0:140])
                 else:
-                    currentNode = AnyNode(id = token, parent=lastSeccion, title=token[0:len(token)])
+                    currentNode = AnyNode(id = token, parent=lastSeccion, name=token[0:len(token)])
             lastArticulo = currentNode
         elif re.match('^ [a-z] [)]', token):
             if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=lastArticulo, title=token[0:140])
+                currentNode = AnyNode(id = token, parent=lastArticulo, name=token[0:140])
             else:
-                currentNode = AnyNode(id = token, parent=lastArticulo, title=token[0:len(token)])
-    #for pre, fill, node in RenderTree(root):
-    #    print("%s%s" % (pre, node))
+                currentNode = AnyNode(id = token, parent=lastArticulo, name=token[0:len(token)])
     return root
+
+def filterTree(tree):
+    '''
+    This function has to filter nodes which are duplied
+    Two nodes are duplied when has the same name
+    The node with the shorter id will be deleted
+    It has to delete his subnodes also
+    Another way to find the node to delete is that is has less depth becouse his nodes have been deleted yet
+    '''
+    # Problems, delete nodes on a recursive way without access, nodes that have been deleted yet
+    # if len(tree.children) > 0:           
+    #     nodes = tree.children
+    #     for node in nodes:
+    #         filterTree(node)
+    # else :
+    print(RenderTree(tree, maxlevel=2).by_attr())
+    return tree
+
+def deleteNode(tree, node1, node2):
+    if len(node1.children) > len(node2.children) or len(node1.id) > len(node2.id):
+        del node2
+    else:
+        del node1
 
 def saveText(text):
     textFile = open("outputs/" + TEXT_FILE, "w+")
@@ -238,7 +266,7 @@ def saveJsonTree(jsonTree):
         json.dump(jsonTree, file)
 
 def saveTreeAsGraph(tree):
-    DotExporter(tree).to_dotfile("outputs/tree.dot")
+    DotExporter(tree, maxlevel=2).to_dotfile("outputs/tree.dot")
 
 
 def exportTreeLatex(tree):
@@ -283,18 +311,23 @@ def exportTokensLatex(tokens):
 # Quiero conseguir: me pasan una consulta: la tokenizo, obtengo todos los subnodos de orden menor en orden
 def searchNode(tree, sentence):
     tokens = manualTokenizeQuery(sentence)
+    tokens = tokens[1:len(tokens)]
     # this is becouse it introduces an space at first TODO fix
-    if(len(tokens) <= 2):
-        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.title))
+    if(len(tokens) <= 1):
+        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[0] + " ", node.name))
         for node in nodes:
-            for pre, fill, subnode in RenderTree(node):
+            for pre, fill, subnode in RenderTree(node, maxlevel=3):
                 print("%s%s" % (pre, subnode.id))
+        return len(nodes) > 0
     else:
         sentence = " "
-        sentence = sentence.join(tokens[2:len(tokens)])
-        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[1] + " ", node.title))
+        sentence = sentence.join(tokens[1:len(tokens)])
+        nodes = findall(tree, filter_= lambda node : re.match("^.*" + tokens[0] + "[ .].*", node.name))
         for node in nodes:
-            searchNode(node, sentence)
+            find = searchNode(node, sentence)
+            if find:
+                return find
+        return False
 
 def printWordcloud(text):
     stopwords_spanish = stopwords.words('spanish')
@@ -329,14 +362,16 @@ def main():
     saveTokens('partes', tokens['partes'])
     saveTokens('subtokens', subtokens)
     tree = createTokensTree(subtokens)
+    tree = filterTree(tree)
     printWordcloud(text)
     # saveTreeAsGraph(tree)
     # dictTree = createDictTree(tree)
     # jsonTree = createJsonTree(tree)
     # saveDictTree(dictTree)
     # saveJsonTree(jsonTree)
-    consulta = "Título II Capítulo I Artículo 64"
-    #searchNode(tree, consulta)
+    consulta = "Título II Capítulo II Sección 2 Artículo 68"
+    res = searchNode(tree, consulta)
+    print(res)
     # exportTokensLatex(subtokens)
     # readTokens(TOKENS_FILE)
 
