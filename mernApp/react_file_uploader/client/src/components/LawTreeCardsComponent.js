@@ -27,9 +27,11 @@ const useStyles = makeStyles((theme) => ({
 export default function LawTreeCardsComponent(data) {
   const classes = useStyles();
   let array = []
+  
   for(let i=0; i< data.data.length;i++){
     array.push(JSON.parse(data.data[i]))
   }
+  console.log(array)
   return (
       <div className={classes.root}>
         {array.map((item) =>

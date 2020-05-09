@@ -1,0 +1,1 @@
+\contentsline {section}{\numberline {1}foo\index {foo}}{1}

@@ -1,0 +1,46 @@
+\contentsline {section}{T\IeC {\'\i }tulo preliminar .}{3}
+\contentsline {section}{T\IeC {\'\i }tulo I. R\IeC {\'e}gimen jur\IeC {\'\i }dico del suelo .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo II . Utilizaci\IeC {\'o}n del suelo r\IeC {\'u}stico .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo III . Ordenaci\IeC {\'o}n del suelo .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IV . Ordenaci\IeC {\'o}n de los espacios naturales protegidos y de la Red Natura 2000 .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo V. Actuaciones de nueva urbanizaci\IeC {\'o}n en ejecuci\IeC {\'o}n del planeamiento .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VI . Actuaciones sobre el medio urbano .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VII . Expropiaci\IeC {\'o}n forzosa .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VIII . Intervenci\IeC {\'o}n administrativa en garant\IeC {\'\i }a de la legalidad urban\IeC {\'\i }stica .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IX . Protecci\IeC {\'o}n de la legalidad urban\IeC {\'\i }stica .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo X. R\IeC {\'e}gimen sancionador . Disposiciones adicionales , transitorias , derogatorios y finales . Anexo : Evaluaci\IeC {\'o}n ambiental de proyectos . Sumario t\IeC {\'\i }tulos y cap\IeC {\'\i }tulos Exposici\IeC {\'o}n de motivos .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo preliminar .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo I. R\IeC {\'e}gimen jur\IeC {\'\i }dico del suelo .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo II . Utilizaci\IeC {\'o}n del suelo r\IeC {\'u}stico .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo III . Ordenaci\IeC {\'o}n del suelo .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IV . Ordenaci\IeC {\'o}n de los espacios naturales protegidos y de la Red Natura 2000 .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo V. Actuaciones de nueva urbanizaci\IeC {\'o}n en ejecuci\IeC {\'o}n del planeamiento .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VI . Actuaciones sobre el medio urbano .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VII . Expropiaci\IeC {\'o}n forzosa .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VIII . Intervenci\IeC {\'o}n administrativa en garant\IeC {\'\i }a de la legalidad urban\IeC {\'\i }stica .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IX . Protecci\IeC {\'o}n de la legalidad urban\IeC {\'\i }stica .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo X. R\IeC {\'e}gimen sancionador .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo preliminar .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo I. R\IeC {\'e}gimen jur\IeC {\'\i }dico del suelo .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo II . Utilizaci\IeC {\'o}n del suelo r\IeC {\'u}stico .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo III . Ordenaci\IeC {\'o}n del suelo .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IV . Ordenaci\IeC {\'o}n de los espacios naturales protegidos y de la Red Natura 2000 .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo V. Actuaciones de nueva urbanizaci\IeC {\'o}n en ejecuci\IeC {\'o}n del planeamiento .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VI . Actuaciones sobre el medio urbano .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VII . Expropiaci\IeC {\'o}n forzosa .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VIII . Intervenci\IeC {\'o}n administrativa en garant\IeC {\'\i }a de la legalidad urban\IeC {\'\i }stica .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IX . Protecci\IeC {\'o}n de la legalidad urban\IeC {\'\i }stica .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo X. R\IeC {\'e}gimen sancionador .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo preliminar}{4}
+\contentsline {section}{T\IeC {\'\i }tulo o requisito habilitante : Mecanismo de intervenci\IeC {\'o}n o control administrativo , como la licencia municipal , la comunicaci\IeC {\'o}n previa , la autorizaci\IeC {\'o}n ambiental y otros equivalentes .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo I R\IeC {\'e}gimen jur\IeC {\'\i }dico del suelo}{4}
+\contentsline {section}{T\IeC {\'\i }tulo II Utilizaci\IeC {\'o}n del suelo r\IeC {\'u}stico}{4}
+\contentsline {section}{T\IeC {\'\i }tulo III Ordenaci\IeC {\'o}n del suelo}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IV Ordenaci\IeC {\'o}n de los espacios naturales protegidos y de la Red Natura 2000}{4}
+\contentsline {section}{T\IeC {\'\i }tulo V Actuaciones de nueva urbanizaci\IeC {\'o}n en ejecuci\IeC {\'o}n del planeamiento}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VI Actuaciones sobre el medio urbano}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VII Expropiaci\IeC {\'o}n forzosa}{4}
+\contentsline {section}{T\IeC {\'\i }tulo VIII Intervenci\IeC {\'o}n administrativa en garant\IeC {\'\i }a de la legalidad urban\IeC {\'\i }stica}{4}
+\contentsline {section}{T\IeC {\'\i }tulo habilitante de la ejecuci\IeC {\'o}n de la obra o edificaci\IeC {\'o}n y certificado final de la misma expedido por t\IeC {\'e}cnico competente acreditativo de que la obra se ha ajustado al proyecto autorizado , en los supuestos de comunicaci\IeC {\'o}n previa a la primera ocupaci\IeC {\'o}n de edificaciones . 5 . La Administraci\IeC {\'o}n podr\IeC {\'a} requerir del interesado la correcci\IeC {\'o}n de aquellas omisiones o incorrecciones subsanables de que adolezca la comunicaci\IeC {\'o}n .}{4}
+\contentsline {section}{T\IeC {\'\i }tulo IX Protecci\IeC {\'o}n de la legalidad urban\IeC {\'\i }stica}{4}
+\contentsline {section}{T\IeC {\'\i }tulo X R\IeC {\'e}gimen sancionador}{4}

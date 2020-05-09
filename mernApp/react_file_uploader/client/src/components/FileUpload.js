@@ -5,6 +5,7 @@ import PdfComponent from './PdfComponent';
 import LawTable from './LawTable'
 import LawTreeComponent from './LawTreeComponent'
 import LawTreeCards from './LawTreeCardsComponent'
+import SearchAppBar from './SearchAppBar'
 import axios from 'axios';
 
 const FileUpload = () => {
@@ -13,6 +14,7 @@ const FileUpload = () => {
   const [uploadedFile, setUploadedFile] = useState({});
   const [message, setMessage] = useState('');
   const [uploadPercentage, setUploadPercentage] = useState(0);
+  const [filter, setFilter] = useState('')
   //const [lawTree, setLawTree] = useState('')
   const lawTree = useGetLawTree(filename)
   
@@ -48,6 +50,7 @@ const FileUpload = () => {
       console.log(fileName)
       setUploadedFile({ fileName, filePath });
       setMessage('File Uploaded');
+      setFilter('')
     } catch (err) {
       if (err.response.status === 500) {
         setMessage('There was a problem with the server');
@@ -98,12 +101,11 @@ const FileUpload = () => {
 
 export default FileUpload;
 
-function useGetLawTree(document) {
+export default function useGetLawTree(document) {
   console.log("useGetLawTree: " + document)
   const [data, setData] = useState();
   useEffect(() => {
     axios.get("http://localhost:5001/getLawTree/bo291_ANTES%20GOBIERNO.pdf").then(response =>{
-      console.log("response: " + response)
       setData(response)
     })
   }, [document])

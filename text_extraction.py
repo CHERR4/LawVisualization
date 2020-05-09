@@ -1,10 +1,10 @@
-import os,glob,subprocess
+import os, glob, subprocess
 import pdftotext
 import json
 import re
 import nltk
 import pickle
-import squarify
+import pandas as pd
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import gutenberg, nps_chat, stopwords
@@ -13,9 +13,6 @@ from anytree.exporter import DictExporter, JsonExporter, DotExporter
 from anytree.search import find, find_by_attr, findall
 from collections import OrderedDict
 from wordcloud import WordCloud
-from stop_words import get_stop_words
-
-
 
 """
 Un título tiene capítulos
@@ -24,317 +21,264 @@ Un capítulo tien artículos
 Una sección tiene artículos
 Un artículo tiene puntos
 """
-
+MAX_WEIGHT = 10
 PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
 TEXT_FILE = 'lawText.txt'
 TOKENS_FILE = 'tokens.txt'
-LATEX_HEADER = r'''\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{imakeidx}
-\makeindex
-
-\begin{document}
-
-\tableofcontents
-'''
-LATEX_FOOTER = r'''\printindex
-\end{document}'''
-LATEX_TITLE = r"\title{Boletín Ofcial del Parlamento de Canarias}"
-LATEX_DATE = r"\date{22 de septiembre de 2016}"
-LATEX_SECTION_TOC_OPEN = r'''\addcontentsline{toc}{section}{'''
-LATEX_SECTION_OPEN = r'''}
-\section*{'''
 
 
-def readTextFromPfd():
-    with open(PDF_FILE, "rb") as f:
+def read_text_from_pfd(path_to_pdf):
+    with open(path_to_pdf, "rb") as f:
         pdf = pdftotext.PDF(f)
     text = ""
-    for page in pdf: 
-           text += page
+    for page in pdf:
+        text += page
     return text
 
-def cleanText(text):
+
+def clean_text(text):
     # Remove multiple jumpline
-    textArr = [line for line in text.split('\n') if line.strip() != '']
+    text_arr = [line for line in text.split('\n') if line.strip() != '']
     text = ""
-    for line in textArr:
+    for line in text_arr:
         text += (line + "\n")
     text = re.sub(r"Boletín O˜cial del Parlamento de Canarias", "", text)
     text = re.sub(r"22 de septiembre de 2016", "", text)
     text = re.sub(r"Núm. 291 / [0-9]+", "", text)
     return text
 
-def isArticulo(token):
+
+def is_articulo(token):
+    token = token.strip()
     pattern = re.compile('^Artículo')
     return pattern.match(token)
 
-def isCapitulo(token):
-    pattern = re.compile('^Capítulo')
+
+def is_capitulo(token):
+    token = token.strip()
+    pattern = re.compile('^Capítulo.*')
     return pattern.match(token)
 
-def isSeccion(token):
-    pattern = re.compile('^Sección')
+
+def is_seccion(token):
+    token = token.strip()
+    pattern = re.compile('^Sección.*')
     return pattern.match(token)
 
-def isTitulo(token):
-    pattern = re.compile('^Título')
+
+def is_titulo(token):
+    token = token.strip()
+    pattern = re.compile('^Título.*')
     return pattern.match(token)
 
-def isKeyword(word):
-    return isArticulo(word) or isSeccion(word) or isCapitulo(word) or isTitulo(word)
 
-def manualTokenize(text):
+def is_keyword(word):
+    return is_articulo(word) or is_seccion(word) or is_capitulo(word) or is_titulo(word)
+
+
+def manual_tokenize(text):
     tokens = nltk.word_tokenize(text)
     articulos = [""]
-    for token in tokens: 
-        if token == 'Título' or token == 'Capítulo' or token == 'Sección' or token == 'Artículo':
+    for token in tokens:
+        if is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token):
             articulos.append(token)
         else:
-            articulos[len(articulos)-1] += (' ' + token)
+            articulos[len(articulos) - 1] += (' ' + token)
     return articulos
 
-def manualTokenizeQuery(text):
+
+def manual_tokenize_query(text):
     tokens = nltk.word_tokenize(text)
     articulos = [""]
-    lastIsToken = False
-    for token in tokens: 
-        if token == 'Título' or token == 'Capítulo' or token == 'Sección' or token == 'Artículo':
+    last_is_token = False
+    for token in tokens:
+        if is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token):
             articulos.append(token)
-            lastIsToken = True
-        elif(not(token == 'Título' or token == 'Capítulo' or token == 'Sección' or token == 'Artículo') and lastIsToken):
-            articulos[len(articulos)-1] += (' ' + token)
-            lastIsToken = False
+            last_is_token = True
+        elif (not (
+                is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token)) and last_is_token):
+            articulos[len(articulos) - 1] += (' ' + token)
+            last_is_token = False
         else:
-            lastIsToken = False
+            last_is_token = False
     return articulos
 
-def tokenizeText(text):
+
+def tokenize_text(text):
     # Cleaning text format to tokenize
     single_whitespace = re.compile(r"\s+")
     text = re.sub(r"\n", " ", text).replace("\r", " ")
     text = single_whitespace.sub(" ", text).strip()
     # Tokenization by common tokenizer 
     # Want to change for tokenization by important words
-    # spanish_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
-    # sentences = spanish_tokenizer.tokenize(text) (.*?)Artículo (?:(?!X).)*
-    # tokenizer = RegexpTokenizer('')
-    # sentences = tokenizer.tokenize(text)
-    sentences = manualTokenize(text)
-    #print(sentences)
-    #print(len(sentences))
+    sentences = manual_tokenize(text)
     # Getting important words, this is just for seeing that stract them correctly
     # My objetive is to make a structure with all of them
-    articulos = filter(isArticulo, sentences)
-    secciones = filter(isSeccion, sentences)
-    capitulos = filter(isCapitulo, sentences)
-    titulos = filter(isTitulo, sentences)
-    return {'partes': sentences, 'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos, 'titulos': titulos}
+    articulos = filter(is_articulo, sentences)
+    secciones = filter(is_seccion, sentences)
+    capitulos = filter(is_capitulo, sentences)
+    titulos = filter(is_titulo, sentences)
+    return {'partes': sentences, 'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos,
+            'titulos': titulos}
 
-def subtokenizeToken(token):
+
+def subtokenize_token(token):
     subtokens = [""]
     words = nltk.word_tokenize(token)
     count = 0
     for word in words:
-        if  len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
+        if len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
             subtokens.extend(word)
         else:
             subtokens[len(subtokens) - 1] += (' ' + word)
         count += 1
     return subtokens
 
-def subtokenizeText(tokens):
+
+def subtokenize_text(tokens):
     subtokens = []
     for token in tokens:
-        subtokens.extend(subtokenizeToken(token))
+        subtokens.extend(subtokenize_token(token))
     return subtokens
-0
-def createTokensTree(tokens):
-    root = AnyNode(id="Root", name="root")
-    lastTitulo = None
-    lastCapitulo = None
-    lastSeccion = None
-    lastArticulo = None
-    currentNode = None
+
+
+def create_tokens_tree(tokens):
+    id = 1
+    root = AnyNode(id=0, text="root")
+    last_titulo = None
+    last_capitulo = None
+    last_seccion = None
+    last_articulo = None
+    current_node = None
     for token in tokens:
         token = token.replace("/^\s*\s*$/", "")
         if re.match("^ Título", token):
-            if not(re.match(".*[.].*", token[0:140])):
-                #node = find(root, filter(), maxlevel=2)
-                #if node is None:
-                if(len(token) > 140):
-                    currentNode = AnyNode(id = token, parent=root, name=token[0:140])
-                else:
-                    currentNode = AnyNode(id = token, parent=root, name=token[0:len(token)])
-                lastTitulo = currentNode
-                lastCapitulo = None
-                lastSeccion = None
-                lastArticulo = None
+            if not (re.match(".*[.].*", token[0:140])):
+                current_node = AnyNode(id=id, parent=root, text=token)
+                last_titulo = current_node
+                last_capitulo = None
+                last_seccion = None
+                last_articulo = None
         elif re.match('^ Capítulo', token):
-            #node = find(root, filter(), maxlevel=3)
-            if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=lastTitulo, name=token[0:140])
-            else:
-                currentNode = AnyNode(id = token, parent=lastTitulo, name=token[0:len(token)])
-            lastCapitulo = currentNode
-            lastSeccion = None
-            lastArticulo = None
+            current_node = AnyNode(id=id, parent=last_titulo, text=token)
+            last_capitulo = current_node
+            last_seccion = None
+            last_articulo = None
         elif re.match('^ Sección', token):
-            #node = find(root, filter(), maxlevel=4)
-            if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:140])
-            else:
-                currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:len(token)])
-            lastSeccion = currentNode
-            lastArticulo = None
+            current_node = AnyNode(id=id, parent=last_capitulo, text=token)
+            last_seccion = current_node
+            last_articulo = None
         elif re.match('^ Artículo', token):
-            #node = find(root, filter())
-            if lastSeccion == None:
-                if(len(token) > 140):
-                    currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:140])
-                else:
-                    currentNode = AnyNode(id = token, parent=lastCapitulo, name=token[0:len(token)])
+            if last_seccion is None:
+                current_node = AnyNode(id=id, parent=last_capitulo, text=token)
             else:
-                if(len(token) > 140):
-                    currentNode = AnyNode(id = token, parent=lastSeccion, name=token[0:140])
-                else:
-                    currentNode = AnyNode(id = token, parent=lastSeccion, name=token[0:len(token)])
-            lastArticulo = currentNode
+                current_node = AnyNode(id=id, parent=last_seccion, text=token)
+            last_articulo = current_node
         elif re.match('^ [a-z] [)]', token):
-            if(len(token) > 140):
-                currentNode = AnyNode(id = token, parent=lastArticulo, name=token[0:140])
-            else:
-                currentNode = AnyNode(id = token, parent=lastArticulo, name=token[0:len(token)])
+            current_node = AnyNode(id=id, parent=last_articulo, text=token)
+        id += 1
     return root
 
-def filterTree(tree):
-    '''
-    This function has to filter nodes which are duplied
-    Two nodes are duplied when has the same name
-    The node with the shorter id will be deleted
-    It has to delete his subnodes also
-    Another way to find the node to delete is that is has less depth becouse his nodes have been deleted yet
-    '''
-    # Problems, delete nodes on a recursive way without access, nodes that have been deleted yet
-    # if len(tree.children) > 0:           
-    #     nodes = tree.children
-    #     for node in nodes:
-    #         filterTree(node)
-    # else :
-    print(RenderTree(tree, maxlevel=2).by_attr())
-    return tree
 
-def deleteNode(tree, node1, node2):
+def delete_node(tree, node1, node2):
     if len(node1.children) > len(node2.children) or len(node1.id) > len(node2.id):
         del node2
     else:
         del node1
 
-def saveText(text):
-    textFile = open("outputs/" + TEXT_FILE, "w+")
-    textFile.write(text)
-    textFile.close()
 
-def saveTokens(filename, tokens):
-    textFile = open("outputs/" + filename + '.txt', "w+")
+def save_text(text):
+    text_file = open("outputs/" + TEXT_FILE, "w+")
+    text_file.write(text)
+    text_file.close()
+
+
+def save_tokens(filename, tokens):
+    text_file = open("outputs/" + filename + '.txt', "w+")
     for token in tokens:
-        textFile.write(token + '\n')
-    textFile.close()
+        text_file.write(token + '\n')
+    text_file.close()
 
-def readTokens(documento):
-    textFile = open(documento, "r+")
-    tokens = textFile.read()
-    textFile.close()
+
+def read_tokens(doc):
+    text_file = open(doc, "r+")
+    tokens = text_file.read()
+    text_file.close()
     return tokens
 
-def createDictTree(tree):
+
+def create_dict_tree(tree):
     exporter = DictExporter(dictcls=OrderedDict, attriter=sorted)
-    dictTree = exporter.export(tree)
-    return dictTree
+    dict_tree = exporter.export(tree)
+    return dict_tree
 
-def createJsonTree(tree):
+
+def create_json_tree(tree):
     exporter = JsonExporter(indent=2, sort_keys=True)
-    jsonTree = exporter.export(tree)
-    return jsonTree
+    json_tree = exporter.export(tree)
+    return json_tree
 
-def saveDictTree(dictTree):
+
+def save_dict_tree(dict_tree):
     with open('outputs/dictTree.p', 'wb') as file:
-        pickle.dump(dictTree, file, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(dict_tree, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-def saveJsonTree(jsonTree):
+
+def save_json_tree(json_tree):
     with open('outputs/jsonTree.txt', 'w') as file:
-        json.dump(jsonTree, file)
+        json.dump(json_tree, file)
 
-def saveTreeAsGraph(tree):
+
+def save_tree_as_graph(tree):
     DotExporter(tree, maxlevel=2).to_dotfile("outputs/tree.dot")
 
 
-def exportTreeLatex(tree):
-    for node in PreOrderIter(tree):
-        print("Hola mundo")
+def tree_as_data_frame(tree):
+    df = pd.DataFrame(columns=["id", "text", "children"])
+    for _, _, node in RenderTree(tree):
+        children = []
+        # print(subnode)
+        for node2 in node.children:
+            children.append(node2.id)
+        dict = {"id": node.id, "text": node.text, "children": children}
+        df = df.append(dict, ignore_index=True)
+    return df
 
-def exportTokensLatex(tokens):
-    document = LATEX_HEADER
-    for token in tokens:
-        if re.match("^ Título", token):
-            document += LATEX_SECTION_TOC_OPEN
-            document += token.split(' ', 1)[1]
-            document += LATEX_SECTION_OPEN
-            document += token.split(' ', 1)[1]
-            # document += token.split(' ', 2)[2]
-            document += r'''}
-            '''
-            # allExceptOne = " ".join(token.split(' ')[4:])
-            # document += allExceptOne
-        elif re.match('^ Capítulo', token):
-            print("hola")
-        elif re.match('^ Sección', token):
-            print("hola")
-        elif re.match('^ Artículo', token):
-            print("hola")
-        elif re.match('^ [a-z] [)]', token):
-            print("hola")
-    document += LATEX_FOOTER
-
-    with open('outputs/law.tex','w') as f:
-        f.write(document)
-
-    commandLine = subprocess.Popen(['pdflatex', 'outputs/law.tex'])
-    commandLine.communicate()
-
-    os.unlink('outputs/law.aux')
-    os.unlink('outputs/law.log')
-    os.unlink('outputs/law.tex')
-    return document
 
 # Tengo: busco un nodo y todos sus hijos a partir de una palabra por la que empiza
 # Quiero conseguir: me pasan una consulta: la tokenizo, obtengo todos los subnodos de orden menor en orden
-def searchNode(tree, sentence):
-    tokens = manualTokenizeQuery(sentence)
+def search_node(tree, sentence):
+    tokens = manual_tokenize_query(sentence)
     tokens = tokens[1:len(tokens)]
-    # this is becouse it introduces an space at first TODO fix
-    if(len(tokens) <= 1):
-        nodes = findall(tree, filter_= lambda node : re.match("^ " + tokens[0] + " ", node.name))
+    # this is because it introduces an space at first TODO fix
+    if len(tokens) <= 1:
+        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.text))
         for node in nodes:
             for pre, fill, subnode in RenderTree(node, maxlevel=3):
-                print("%s%s" % (pre, subnode.id))
+                print("%s%s" % (pre, subnode.text))
         return len(nodes) > 0
     else:
         sentence = " "
         sentence = sentence.join(tokens[1:len(tokens)])
-        nodes = findall(tree, filter_= lambda node : re.match("^.*" + tokens[0] + "[ .].*", node.name))
+        nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.text))
         for node in nodes:
-            find = searchNode(node, sentence)
+            find = search_node(node, sentence)
             if find:
                 return find
         return False
 
-def printWordcloud(text):
+
+def print_tokens_tree(tree, level=2):
+    for pre, fill, subnode in RenderTree(tree, maxlevel=level):
+        print("%s%s%s" % (pre, subnode.id, subnode.text))
+
+
+def print_wordcloud(text):
     stopwords_spanish = stopwords.words('spanish')
     stopwords_spanish.extend(['Artículo', 'Boletín', 'Oficial', 'Parlamento', 'Canarias'])
     # Here I can add all the worlds I dont like as stopwords
     wc = WordCloud(background_color="white", max_words=2000,
-               stopwords=stopwords_spanish, contour_width=3, contour_color='steelblue')
+                   stopwords=stopwords_spanish, contour_width=3, contour_color='steelblue')
     # generate word cloud
     wc.generate(text)
     # store to file
@@ -342,38 +286,43 @@ def printWordcloud(text):
 
 
 def main():
-    '''
+    """
     print("1) full execution\n")
     print("2) reload text from textFile\n")
     print("3) reload tokens from tokensFile\n")
     mode = int( input ("Insert mode of execution: \n"))
     switch (mode)
-    '''
-    text = readTextFromPfd()
-    cleaned_text = cleanText(text)
-    # print(cleaned_text)
-    saveText(cleaned_text)
-    tokens = tokenizeText(cleaned_text)
-    subtokens = subtokenizeText(tokens['partes'])
-    saveTokens('articulos', tokens['articulos'])
-    saveTokens('secciones', tokens['secciones'])
-    saveTokens('capitulos', tokens['capitulos'])
-    saveTokens('titulos', tokens['titulos'])
-    saveTokens('partes', tokens['partes'])
-    saveTokens('subtokens', subtokens)
-    tree = createTokensTree(subtokens)
-    tree = filterTree(tree)
-    printWordcloud(text)
-    # saveTreeAsGraph(tree)
-    # dictTree = createDictTree(tree)
-    # jsonTree = createJsonTree(tree)
-    # saveDictTree(dictTree)
-    # saveJsonTree(jsonTree)
-    consulta = "Título II Capítulo II Sección 2 Artículo 68"
-    res = searchNode(tree, consulta)
-    print(res)
+    """
+    text = read_text_from_pfd(PDF_FILE)
+    cleaned_text = clean_text(text)
+    save_text(cleaned_text)
+    tokens = tokenize_text(cleaned_text)
+    subtokens = subtokenize_text(tokens['partes'])
+    save_tokens('articulos', tokens['articulos'])
+    save_tokens('secciones', tokens['secciones'])
+    save_tokens('capitulos', tokens['capitulos'])
+    save_tokens('titulos', tokens['titulos'])
+    save_tokens('partes', tokens['partes'])
+    save_tokens('subtokens', subtokens)
+    tree = create_tokens_tree(subtokens)
+    print_tokens_tree(tree)
+    print_wordcloud(text)
+    # save_tree_as_graph(tree)
+    tree_df = tree_as_data_frame(tree)
+    print(tree_df.info())
+    print(tree_df.head(10))
+    print(len(tree_df))
+    tree_df.to_json('outputs/law_tree.json', orient='table')
+
+    # tree_as_data_frame(tree)
+    # dictTree = create_dict_tree(tree)
+    # jsonTree = create_json_tree(tree)
+    # save_dict_tree(dictTree)
+    # save_json_tree(jsonTree)
+    query = "Título II Capítulo II Sección 2 Artículo 68"
+    res = search_node(tree, query)
     # exportTokensLatex(subtokens)
-    # readTokens(TOKENS_FILE)
+    # read_tokens(TOKENS_FILE)
 
 
 if __name__ == "__main__":

@@ -30,11 +30,19 @@ def clean_text(text):
 def manual_tokenize(text):
     tokens = nltk.word_tokenize(text)
     articulos = [""]
+    for i in range(len(tokens)):
+        token = tokens[i]
+        if (is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token)) and (i < len(tokens)-2 and ((tokens[i+1] != "o") and (tokens[i+1] != "habilitante") and (tokens[i+1] != "habilitantes"))):
+            articulos.append(token)
+        else:
+            articulos[len(articulos) - 1] += (' ' + token)
+    """
     for token in tokens:
         if is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token):
             articulos.append(token)
         else:
             articulos[len(articulos) - 1] += (' ' + token)
+    """
     return articulos
 
 
@@ -129,11 +137,11 @@ def create_tokens_tree(tokens, file):
             last_articulo = None
         elif re.match('^ Artículo', token):
             if last_seccion is None:
-                current_node = AnyNode(id=id, parent=last_capitulo, name=token)
+                current_node = AnyNode(id=id, parent=last_capitulo, name=token, shortname=token.split('.')[0:1])
             else:
-                current_node = AnyNode(id=id, parent=last_seccion, name=token)
+                current_node = AnyNode(id=id, parent=last_seccion, name=token, shortname=token.split('.')[0:1])
             last_articulo = current_node
-        elif re.match('^ [a-z] [)]', token):
+        else:
             current_node = AnyNode(id=id, parent=last_articulo, name=token)
         id += 1
     return root

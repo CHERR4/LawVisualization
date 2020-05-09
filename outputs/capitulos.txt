@@ -6,7 +6,7 @@ Capítulo III . Suelo urbanizable .
 Capítulo IV . Suelo urbano .
 Capítulo I. Régimen general .
 Capítulo II . Régimen de usos por categorías .
-Capítulo III . Títulos habilitantes .
+Capítulo III .
 Capítulo I. Disposiciones generales .
 Capítulo II . Instrumentos de ordenación general de los recursos naturales y del territorio .
 Capítulo III . Planes y normas de espacios naturales protegidos y de la Red Natura 2000 .
@@ -49,7 +49,7 @@ Capítulo III . Suelo urbanizable .
 Capítulo IV . Suelo urbano .
 Capítulo I. Régimen general .
 Capítulo II . Régimen de usos por categorías .
-Capítulo III . Títulos habilitantes .
+Capítulo III .
 Capítulo I. Disposiciones generales .
 Capítulo II . Instrumentos de ordenación general de los recursos naturales y del territorio .
 Capítulo III . Planes y normas de espacios naturales protegidos y de la Red Natura 2000 .
@@ -92,7 +92,7 @@ Capítulo III Suelo urbanizable
 Capítulo IV Suelo urbano
 Capítulo I Régimen general
 Capítulo II Régimen de usos por categorías
-Capítulo III Títulos habilitantes
+Capítulo III
 Capítulo I Disposiciones generales
 Capítulo II Instrumentos de ordenación general de los recursos naturales y del territorio
 Capítulo III Planes y normas de espacios naturales protegidos y de la Red Natura 2000

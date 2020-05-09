@@ -12,6 +12,7 @@ Título X. Régimen sancionador . Disposiciones adicionales , transitorias , der
 Título preliminar .
 Título I. Régimen jurídico del suelo .
 Título II . Utilización del suelo rústico .
+Títulos habilitantes .
 Título III . Ordenación del suelo .
 Título IV . Ordenación de los espacios naturales protegidos y de la Red Natura 2000 .
 Título V. Actuaciones de nueva urbanización en ejecución del planeamiento .
@@ -23,24 +24,28 @@ Título X. Régimen sancionador .
 Título preliminar .
 Título I. Régimen jurídico del suelo .
 Título II . Utilización del suelo rústico .
+Títulos habilitantes .
 Título III . Ordenación del suelo .
 Título IV . Ordenación de los espacios naturales protegidos y de la Red Natura 2000 .
 Título V. Actuaciones de nueva urbanización en ejecución del planeamiento .
 Título VI . Actuaciones sobre el medio urbano .
 Título VII . Expropiación forzosa .
 Título VIII . Intervención administrativa en garantía de la legalidad urbanística .
+Títulos habilitantes previos .
 Título IX . Protección de la legalidad urbanística .
 Título X. Régimen sancionador .
 Título preliminar
 Título o requisito habilitante : Mecanismo de intervención o control administrativo , como la licencia municipal , la comunicación previa , la autorización ambiental y otros equivalentes . j ) Promotor : Persona física o jurídica que impulsa la actuación territorial o urbanística mediante la realización de las diligencias precisas para ello . Tendrá el mismo carácter , a todos los efectos , cuando el objeto de la actuación sea para uso propio , incluso identificándose con la persona titular del terreno o de las instalaciones , construcciones o edificaciones , en su caso . 5 . Los conceptos que traen causa de la legislación básica estatal tienen el significado y alcance delimitados por esa normativa .
 Título I Régimen jurídico del suelo
 Título II Utilización del suelo rústico
+Títulos habilitantes
 Título III Ordenación del suelo
 Título IV Ordenación de los espacios naturales protegidos y de la Red Natura 2000
 Título V Actuaciones de nueva urbanización en ejecución del planeamiento
 Título VI Actuaciones sobre el medio urbano
 Título VII Expropiación forzosa
 Título VIII Intervención administrativa en garantía de la legalidad urbanística
+Títulos habilitantes previos . 1 . No podrá otorgarse licencia urbanística o acto autorizatorio de efecto equivalente ni presentarse comunicación previa para la realización de actuaciones sujetas a autorización sectorial o título para el uso demanial sin que se acredite el previo otorgamiento de estos , de forma expresa o por silencio , cuando este opere en sentido positivo . 2 . Los condicionamientos legalmente contenidos en dichos títulos deberán ser respetados y asumidos en la resolución que ponga fin al procedimiento de otorgamiento de la licencia y deberán ser igualmente cumplimentados en la ejecución de las actuaciones amparadas por licencia o por comunicación previa . 3 . La no obtención de los títulos previos señalados en el apartado 1 y/o la contravención de sus condicionantes , determinará la denegación de la licencia solicitada , la imposibilidad de su obtención por silencio administrativo positivo o la ineficacia de la comunicación previa , cuando esta resulte aplicable . 4 . No será necesario , para la solicitud y obtención de licencia municipal de obra , la previa obtención de título habilitante para la instalación de la actividad clasificada que pretenda implantarse en la construcción a realizar , quedando en todo caso exonerada la administración concedente de aquella de toda responsabilidad derivada de la ulterior denegación de la licencia de instalación de actividad clasificada o de la disconformidad a la legalidad urbanística de las actividades comunicadas .
 Título habilitante de la ejecución de la obra o edificación y certificado final de la misma expedido por técnico competente acreditativo de que la obra se ha ajustado al proyecto autorizado , en los supuestos de comunicación previa a la primera ocupación de edificaciones . 5 . La Administración podrá requerir del interesado la corrección de aquellas omisiones o incorrecciones subsanables de que adolezca la comunicación .
 Título IX Protección de la legalidad urbanística
 Título X Régimen sancionador

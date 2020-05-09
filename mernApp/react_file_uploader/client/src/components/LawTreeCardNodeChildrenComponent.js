@@ -33,9 +33,11 @@ export default function LawTreeCardNodeChildrenComponent(data) {
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1a-content"
         id="panel1a-header">
-          {item.name}
+          {item.shortname ? <h3>{item.shortname}</h3> : item.name}
           </ExpansionPanelSummary>      
           <ExpansionPanelDetails>
+            {item.shortname ? item.name : null}
+            <br/>
             {Array.isArray(item.children) ? LawTreeCardNodeChildrenComponent(item.children) : null}
           </ExpansionPanelDetails>   
         </ExpansionPanel>
