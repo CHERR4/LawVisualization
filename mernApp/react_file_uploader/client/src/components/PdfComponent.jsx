@@ -15,7 +15,7 @@ const PdfComponent = ({ pathToPdf }) => {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            <embed height="1000" width="100%" src={pathToPdf} alt='' type="application/pdf" />
+            <embed height="1000" width="200%" src={pathToPdf} alt='' type="application/pdf" />
         </div>
     )
 }

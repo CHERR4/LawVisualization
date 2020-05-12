@@ -1,14 +1,10 @@
-import React, { Component, Fragment, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import ListFiles, { useGetSelectedFile } from '../components/ListUploadedFiles'
+import ListFiles from '../components/ListUploadedFiles'
 import LawTreeCards from '../components/LawTreeCardsComponent'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid';
 import axios from 'axios'
-import store from '../store/index';
-
-import { selectFile } from "../actions/index"
-import { loadTree } from "../actions/index"
 
 
 // https://stackoverflow.com/questions/21285923/reactjs-two-components-communicating
@@ -25,7 +21,6 @@ const LawTree = () => {
 
     const classes = useStyles();
     const selectedFile = useSelector(state => state.selected_file);
-    console.log(selectedFile)
     const lawTree = useGetLawTree(selectedFile);
     const onSubmit = async e => {
         e.preventDefaul();

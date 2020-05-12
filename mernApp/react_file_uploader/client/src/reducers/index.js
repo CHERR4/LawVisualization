@@ -1,7 +1,5 @@
-import { SELECT_FILE } from "../actions/index"
-import { ADD_FILES } from "../actions/index"
-import { LOAD_TREE } from "../actions/index"
-import { UPLOAD_FILE } from "../actions/index"
+import { SELECT_FILE, ADD_FILES, LOAD_TREE,
+     UPLOAD_FILE, UPLOAD_FILE_SUCCESS } from "../actions/index"
 
 const initialState = {
     selected_file: null,
@@ -25,6 +23,14 @@ function rootReducer(state = initialState, action) {
         return Object.assign({}, state, {
             law_tree: action.payload
         });
+    }
+    if(action.type === UPLOAD_FILE_SUCCESS) {
+        console.log(action.payload);
+        console.log(action.payload.data);
+        console.log(action.payload.data.fileName);
+        return Object.assign({}, state, {
+            selected_file: action.payload.data.fileName
+        })
     }
     return state;
 }

@@ -7,7 +7,6 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import LawTreeCardNodeChildrenComponent from './LawTreeCardNodeChildrenComponent';
 import Grid from '@material-ui/core/Grid';
 // https://material-ui.com/es/components/expansion-panels/
-import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {

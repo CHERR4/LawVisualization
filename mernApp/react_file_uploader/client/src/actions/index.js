@@ -1,4 +1,4 @@
-import fetch from 'cross-fetch'
+import axios from 'axios'
 //https://redux.js.org/advanced/async-actions
 export const SELECT_FILE = "SELECT_FILE";
 export const ADD_FILES = "ADD_FILES";
@@ -27,15 +27,15 @@ export function loadTree(payload) {
 }
 
 export function uploadFile(payload) {
-
+    const formData = new FormData();
+    formData.append('file', payload.file);
     return function(dispatch) {
 
-        dispatch(selectFile(payload))
-
-        return fetch({
-            url: '/upload',
-            method: 'POST',
-            body: payload,
+        // dispatch(uploadFileSuccess(payload))
+        return axios.post('/upload', formData, {
+            headers:{
+                'Content-Type': 'application/pdf'
+              } 
         })
         .then(file =>
             dispatch(

@@ -1,6 +1,5 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import SearchAppBar from '../components/SearchAppBar';
-import TemporaryDrawer from '../components/SideNavApp';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { LawTree, LawUpload } from '../pages'
 import Grid from '@material-ui/core/Grid';
