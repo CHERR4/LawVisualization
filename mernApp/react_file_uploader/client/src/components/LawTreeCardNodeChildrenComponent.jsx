@@ -5,12 +5,13 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
 import Card from '@material-ui/core/Card'
-import LawTreeCardComponent from './LawTreeComponent';
+import CardHeader from '@material-ui/core/CardHeader';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import LawTreeCardNodeComponent from './LawTreeCardNodeComponent';
+import Grid from '@material-ui/core/Grid';
+
 // https://material-ui.com/es/components/expansion-panels/
 
 const useStyles = makeStyles((theme) => ({
@@ -23,25 +24,40 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 export default function LawTreeCardNodeChildrenComponent(data) {
+
   const classes = useStyles();
+
   return (
-    <div className={classes.root}>
+    <Grid container className={classes.root} spacing={2}>
       {data.map((item) =>
-        <ExpansionPanel>   
+      Array.isArray(item.children) ?
+        <ExpansionPanel varian="outlined">   
           <ExpansionPanelSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1a-content"
         id="panel1a-header">
-          {item.shortname ? <h3>{item.shortname}</h3> : item.name}
-          </ExpansionPanelSummary>      
+          {item.shortname ? <h3>{item.shortname}</h3> : <h4>{item.name}</h4>}
+          </ExpansionPanelSummary>    
           <ExpansionPanelDetails>
-            {item.shortname ? item.name : null}
-            <br/>
-            {Array.isArray(item.children) ? LawTreeCardNodeChildrenComponent(item.children) : null}
-          </ExpansionPanelDetails>   
+            <Grid container justify="center" spacing={2}>
+              <Grid item xs={12}>
+                {item.shortname ?               
+                <Card>
+                  <CardHeader title={item.name}/>
+                </Card> : null}
+              </Grid>
+              <Grid item xs={12}>
+             {LawTreeCardNodeChildrenComponent(item.children)}
+            </Grid>
+          </Grid>
+          </ExpansionPanelDetails>  
         </ExpansionPanel>
+        : <Card>
+          <CardHeader title={item.name}/>
+        </Card>
       )}
-  </div>
+  </Grid>
 );
 }
