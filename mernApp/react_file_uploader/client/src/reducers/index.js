@@ -1,5 +1,5 @@
-import { SELECT_FILE, ADD_FILES, LOAD_TREE,
-     UPLOAD_FILE, UPLOAD_FILE_SUCCESS } from "../actions/index"
+import { SELECT_FILE, ADD_FILES, UPLOAD_FILE_SUCCESS
+    , GET_UPLOADS_SUCCESS, FILTER_TREE_SUCCESS, LOAD_TREE_SUCCESS } from "../actions/index"
 
 const initialState = {
     selected_file: null,
@@ -8,10 +8,10 @@ const initialState = {
 };
 
 function rootReducer(state = initialState, action) {
-    if (action.type === SELECT_FILE || action.type === UPLOAD_FILE) {
+    if (action.type === SELECT_FILE) {
         console.log("action", action)
         return Object.assign({}, state, {
-            selected_file: action.payload
+            selected_file: action.payload.file
         });
     } 
     if(action.type === ADD_FILES) {
@@ -19,17 +19,30 @@ function rootReducer(state = initialState, action) {
             files: state.files.concat(action.payload)
         })
     }
-    if(action.type === LOAD_TREE) {
+    if(action.type === LOAD_TREE_SUCCESS) {
+        console.log(action.payload)
+        console.log(action.payload.tree.data)
         return Object.assign({}, state, {
-            law_tree: action.payload
+            law_tree: action.payload.tree.data,
+            selected_file: action.payload.file
         });
     }
     if(action.type === UPLOAD_FILE_SUCCESS) {
         console.log(action.payload);
-        console.log(action.payload.data);
-        console.log(action.payload.data.fileName);
         return Object.assign({}, state, {
             selected_file: action.payload.data.fileName
+        })
+    }
+    if(action.type === GET_UPLOADS_SUCCESS) {
+        console.log(action.payload);
+        return Object.assign({}, state, {
+            files: action.payload.data
+        })
+    }
+    if(action.type === FILTER_TREE_SUCCESS) {
+        console.log(action.payload);
+        return Object.assign({}, state, {
+            law_tree: action.payload.data
         })
     }
     return state;

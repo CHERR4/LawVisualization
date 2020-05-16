@@ -4,6 +4,9 @@ import pdftotext
 import pandas as pd
 from anytree import RenderTree, AnyNode
 from anytree.exporter import JsonExporter
+from nltk.corpus import gutenberg, nps_chat, stopwords
+from anytree.search import find, find_by_attr, findall
+from wordcloud import WordCloud
 
 
 def read_text_from_pfd(filepath):
@@ -167,3 +170,53 @@ def exporter_tree(tree):
         # print(exporter.export(child))
         array.append(exporter.export(child))
     return array
+
+
+def print_wordcloud(text, document):
+    stopwords_spanish = stopwords.words('spanish')
+    stopwords_spanish.extend(['Artículo', 'Boletín', 'Oficial', 'Parlamento', 'Canarias'])
+    # Here I can add all the worlds I dont like as stopwords
+    wc = WordCloud(background_color="white", max_words=2000,
+                   stopwords=stopwords_spanish, contour_width=3, contour_color='steelblue')
+    # generate word cloud
+    wc.generate(text)
+    # store to file
+    wc.to_file("outputs/" + document + ".png")
+    return wc.generate(text)
+
+def manual_tokenize_query(text):
+    tokens = nltk.word_tokenize(text)
+    articulos = [""]
+    last_is_token = False
+    for token in tokens:
+        if is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token):
+            articulos.append(token)
+            last_is_token = True
+        elif (not (
+                is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token)) and last_is_token):
+            articulos[len(articulos) - 1] += (' ' + token)
+            last_is_token = False
+        else:
+            last_is_token = False
+    return articulos
+
+
+def search_node(tree, sentence):
+    tokens = manual_tokenize_query(sentence)
+    tokens = tokens[1:len(tokens)]
+    # this is because it introduces an space at first TODO fix
+    if len(tokens) <= 1:
+        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.name))
+        for node in nodes:
+            for pre, fill, subnode in RenderTree(node, maxlevel=3):
+                print("%s%s" % (pre, subnode.name))
+        return len(nodes) > 0, nodes
+    else:
+        sentence = " "
+        sentence = sentence.join(tokens[1:len(tokens)])
+        nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.name))
+        for node in nodes:
+            find, nodes = search_node(node, sentence)
+            if find:
+                return find, nodes
+        return False, []

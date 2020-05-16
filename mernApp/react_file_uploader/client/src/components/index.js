@@ -9,10 +9,10 @@ import SearchAppBar from './SearchAppBar'
 import Links from './Links'
 import useGetLawTree from './FileUpload'
 import ListFiles from './ListUploadedFiles'
-import listFilesWithHooksHOC from './ListFilesWithHooksHOC'
+import WordCloud from './WordCloud'
 
 export { FileUpload, Message, Progress, 
     PdfComponent, LawTreeCards, LawTreeCardNodeChildrenComponent, 
     SideNavApp, SearchAppBar, Links, useGetLawTree, ListFiles,
-    listFilesWithHooksHOC
+     WordCloud
  }

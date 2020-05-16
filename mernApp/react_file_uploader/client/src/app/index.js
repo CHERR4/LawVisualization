@@ -1,8 +1,9 @@
 import React from 'react';
 import SearchAppBar from '../components/SearchAppBar';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import { LawTree, LawUpload } from '../pages'
+import { LawTree, LawUpload, LawWordCloud } from '../pages'
 import Grid from '@material-ui/core/Grid';
+
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Switch>
           <Route path="/lawTree" exact component={LawTree}/>
           <Route path="/lawUpload" exact component={LawUpload}/>
+          <Route path="/lawWordcloud" exact component={LawWordCloud}/>
         </Switch>
       </Grid>
     </Router>

@@ -10,6 +10,9 @@ const useStyles = makeStyles({
       margin: 'auto',
       marginTop: '5em',
   },
+  upload: {
+    width: "100",
+  }
 });
 
 const mapDispatchToProps = (dispatch) => {
@@ -17,7 +20,6 @@ const mapDispatchToProps = (dispatch) => {
       uploadFile: file => store.dispatch(uploadFile(file))
   }
 }
-
 
 
 const ConnectedFileUpload = (props) => {
@@ -33,7 +35,7 @@ const ConnectedFileUpload = (props) => {
     setFilename(e.target.files[0].name);
   };
 
-  const onSubmit = async e => {
+  const onSubmit = e => {
     e.preventDefault();  
     props.uploadFile({file})
   };
@@ -42,7 +44,7 @@ const ConnectedFileUpload = (props) => {
     <div className={classes.root}>
       <Fragment>
         <form onSubmit={onSubmit}>
-          <div className='custom-file mb-4'>
+          <div className={'custom-file mb-4'}>
             <input
               type='file'
               className='custom-file-input'
@@ -55,7 +57,7 @@ const ConnectedFileUpload = (props) => {
           </div>
           <input
             type='submit'
-            value='Upload'
+            value='Subir'
             className='btn btn-primary btn-block mt-4'
           />
         </form>

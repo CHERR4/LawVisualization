@@ -6,29 +6,38 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import LawTreeCardNodeChildrenComponent from './LawTreeCardNodeChildrenComponent';
 import Grid from '@material-ui/core/Grid';
+import { useSelector } from "react-redux";
+
 // https://material-ui.com/es/components/expansion-panels/
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    marginTop: '1em',
     width: '200%',
-    marginRight: '5em',
   },
   heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
+    alignContent: "center",
   },
 }));
 
-export default function LawTreeCardsComponent(data) {
+export default function LawTreeCardsComponent() {
+  const selected_file = useSelector(state => state.selected_file)
+  const data = useSelector(state => state.law_tree);
   const classes = useStyles();
   let array = []
-  
-  for(let i=0; i< data.data.length;i++){
-    array.push(JSON.parse(data.data[i]))
+  if(Array.isArray(data)){
+    for(let i=0; i< data.length;i++){
+      array.push(JSON.parse(data[i]))
+    }
+  } else {
+    array.push(JSON.parse(data))
   }
+
   console.log(array)
-  return (
+  return ( 
+    selected_file ?
       <div className={classes.root}>
+        {selected_file ? <h2 className={classes.heading}>{selected_file}</h2> : null}
         {array.map((item) =>
         <Grid item xs={12}>
           <ExpansionPanel>   
@@ -39,11 +48,12 @@ export default function LawTreeCardsComponent(data) {
             <h3>{item.name}</h3>
             </ExpansionPanelSummary>      
             <ExpansionPanelDetails>
-              {Array.isArray(item.children) ? LawTreeCardNodeChildrenComponent(item.children) : null}
+              {Array.isArray(item.children) ? <LawTreeCardNodeChildrenComponent children={item.children}/> : null}
             </ExpansionPanelDetails>   
           </ExpansionPanel>
           </Grid>
         )}
     </div>
+    : null
   );
 }

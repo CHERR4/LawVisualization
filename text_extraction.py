@@ -256,16 +256,16 @@ def search_node(tree, sentence):
         for node in nodes:
             for pre, fill, subnode in RenderTree(node, maxlevel=3):
                 print("%s%s" % (pre, subnode.text))
-        return len(nodes) > 0
+        return len(nodes) > 0, nodes
     else:
         sentence = " "
         sentence = sentence.join(tokens[1:len(tokens)])
         nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.text))
         for node in nodes:
-            find = search_node(node, sentence)
+            find, nodes = search_node(node, sentence)
             if find:
-                return find
-        return False
+                return find, nodes
+        return False, []
 
 
 def print_tokens_tree(tree, level=2):
@@ -319,8 +319,10 @@ def main():
     # jsonTree = create_json_tree(tree)
     # save_dict_tree(dictTree)
     # save_json_tree(jsonTree)
-    query = "Título II Capítulo II Sección 2 Artículo 68"
-    res = search_node(tree, query)
+    query = "Artículo 68"
+    res, nodes = search_node(tree, query)
+    print(res)
+    print(nodes)
     # exportTokensLatex(subtokens)
     # read_tokens(TOKENS_FILE)
 

@@ -22,9 +22,8 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function LawTreeCardNodeChildrenComponent(data) {
-
   const classes = useStyles();
-
+  data = data.children
   return (
     <Grid container className={classes.root} spacing={2}>
       {data.map((item) =>
@@ -45,7 +44,7 @@ export default function LawTreeCardNodeChildrenComponent(data) {
                 </Card> : null}
               </Grid>
               <Grid item xs={12}>
-             {LawTreeCardNodeChildrenComponent(item.children)}
+             <LawTreeCardNodeChildrenComponent children={item.children}/>
             </Grid>
           </Grid>
           </ExpansionPanelDetails>  

@@ -1,4 +1,5 @@
 import LawTree from './LawTree'
 import LawUpload from './LawUpload'
+import LawWordCloud from './LawWordCloud'
 
-export { LawTree, LawUpload }
+export { LawTree, LawUpload, LawWordCloud }
