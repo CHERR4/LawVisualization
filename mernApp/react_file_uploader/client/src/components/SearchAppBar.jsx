@@ -78,6 +78,7 @@ export default function PersistentDrawerLeft() {
   const history = useHistory();
   const goLawTree = () => history.push('/lawTree');
   const goUpload = () => history.push('/lawUpload')
+  const goLawText = () => history.push('/lawText')
 
 
   return (
@@ -120,6 +121,9 @@ export default function PersistentDrawerLeft() {
          </ListItem>
          <ListItem button key="Upload" onClick={goUpload}>
            <ListItemText primary="Upload"/>
+         </ListItem>
+         <ListItem button key="Text" onClick={goLawText}>
+           <ListItemText primary="Text"/>
          </ListItem>
         </List>
         <Divider />

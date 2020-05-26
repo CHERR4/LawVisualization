@@ -39,9 +39,9 @@ export default function LawTreeCardNodeChildrenComponent(data) {
             <Grid container justify="center" spacing={2}>
               <Grid item xs={12}>
                 {item.shortname ?               
-                <Card>
-                  <CardHeader title={item.name}/>
-                </Card> : null}
+                <div>
+                  <h4>{item.name}</h4>
+                  </div> : null}
               </Grid>
               <Grid item xs={12}>
              <LawTreeCardNodeChildrenComponent children={item.children}/>
@@ -49,9 +49,28 @@ export default function LawTreeCardNodeChildrenComponent(data) {
           </Grid>
           </ExpansionPanelDetails>  
         </ExpansionPanel>
-        : <Card>
-          <CardHeader title={item.name}/>
-        </Card>
+        : <div>
+          <ExpansionPanel varian="outlined"> 
+          <ExpansionPanelSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header">
+          {item.shortname ? <h3>{item.shortname}</h3> : <h4>{item.name}</h4>}
+          </ExpansionPanelSummary>    
+            <ExpansionPanelDetails>
+              <Grid container justify="center" spacing={2}>
+                <Grid item xs={12}>
+                  {item.shortname ?               
+                  <div>
+                    <h4>{item.name}</h4>
+                    </div> : null}
+                </Grid>
+                <Grid item xs={12}>
+              </Grid>
+            </Grid>
+            </ExpansionPanelDetails>  
+          </ExpansionPanel>
+        </div>
       )}
   </Grid>
 );

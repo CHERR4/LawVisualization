@@ -60,23 +60,29 @@ export function loadTreeFailed(payload) {
 export function uploadFile(payload) {
     const formData = new FormData();
     formData.append('file', payload.file);
-    return function(dispatch) {
+    return  function(dispatch) {
 
-        dispatch(getUploads())
         return axios.post('/upload', formData, {
             headers:{
                 'Content-Type': 'application/pdf'
               } 
-        })
-        .then(file =>
-            dispatch(
-                uploadFileSuccess(file),
-            ),
+        }).then(
+            file => {
+                dispatch(
+                    uploadFileSuccess(file),
+                );
+                dispatch(
+                    getUploads()
+                    );
+                dispatch(loadTree(file))
+            },
             error => 
             dispatch(
                 uploadFileFailed(error)
             )
+        
         )
+
     }
 } 
 
@@ -124,6 +130,26 @@ export function filterTree(payload) {
     };
     return function(dispatch) {
         return axios.get('http://localhost:5001/getFilterTree', { params })
+        .then(tree => 
+            dispatch(
+                filterTreeSuccess(tree),
+            ),
+            error => 
+            dispatch(
+                filterTreeFailed(error)
+            )
+        )
+    }
+}
+
+export function filterArticulos(payload) {
+    console.log(payload)
+    const params = {
+        "document": payload.selectedFile,
+        "filter": payload.filter
+    };
+    return function(dispatch) {
+        return axios.get('http://localhost:5001/getFilterArticulos', { params })
         .then(tree => 
             dispatch(
                 filterTreeSuccess(tree),

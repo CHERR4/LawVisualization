@@ -35,7 +35,7 @@ def manual_tokenize(text):
     articulos = [""]
     for i in range(len(tokens)):
         token = tokens[i]
-        if (is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token)) and (i < len(tokens)-2 and ((tokens[i+1] != "o") and (tokens[i+1] != "habilitante") and (tokens[i+1] != "habilitantes"))):
+        if (is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token)) and (i < len(tokens)-2 and ((tokens[i+1] != "o") and (tokens[i+1] != "habilitante") and (tokens[i+1] != "habilitantes") and (tokens[i+1] != "de"))):
             articulos.append(token)
         else:
             articulos[len(articulos) - 1] += (' ' + token)
@@ -52,7 +52,8 @@ def manual_tokenize(text):
 def is_articulo(token):
     token = token.strip()
     pattern = re.compile('^Artículo')
-    return pattern.match(token)
+    pattern_2 = re.compile('^TÍTULO.*')
+    return pattern.match(token) or pattern_2.match(token)
 
 
 def is_capitulo(token):
@@ -70,7 +71,8 @@ def is_seccion(token):
 def is_titulo(token):
     token = token.strip()
     pattern = re.compile('^Título.*')
-    return pattern.match(token)
+    pattern_2 = re.compile('^TÍTULO.*')
+    return pattern.match(token) or pattern_2.match(token)
 
 
 def tokenize_text(text):
@@ -110,11 +112,22 @@ def subtokenize_text(tokens):
         subtokens.extend(subtokenize_token(token))
     return subtokens
 
+def formatToken(token):
+    token = re.sub(" [.]", ".", token)
+    token = re.sub(" ,", ",", token)
+    token = re.sub(" :", ":", token)
+    token = re.sub(" ;", ";", token)
+    token = re.sub("“ ", "“", token)
+    token = re.sub(" ”", "”", token)
+    token = re.sub("[(] ", "(", token)
+    token = re.sub(" [)]", ")", token)
+    token = re.sub(" / ", "/", token)
+    return token
 
 def create_tokens_tree(tokens, file):
     id = 1
     print(file)
-    root = AnyNode(id=0, name=file)
+    root = AnyNode(id=0, name=file, shortname=file)
     last_titulo = None
     last_capitulo = None
     last_seccion = None
@@ -122,30 +135,38 @@ def create_tokens_tree(tokens, file):
     current_node = None
     for token in tokens:
         token = token.replace("/^\s*\s*$/", "")
-        if re.match("^ Título", token):
+        if is_titulo(token):
             if not (re.match(".*[.].*", token[0:140])):
-                current_node = AnyNode(id=id, parent=root, name=token)
+                token = formatToken(token)
+                current_node = AnyNode(id=id, parent=root, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
                 last_titulo = current_node
                 last_capitulo = None
                 last_seccion = None
                 last_articulo = None
-        elif re.match('^ Capítulo', token):
-            current_node = AnyNode(id=id, parent=last_titulo, name=token)
+        elif is_capitulo(token):
+            token = formatToken(token)
+            current_node = AnyNode(id=id, parent=last_titulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
             last_capitulo = current_node
             last_seccion = None
             last_articulo = None
-        elif re.match('^ Sección', token):
-            current_node = AnyNode(id=id, parent=last_capitulo, name=token)
+        elif is_seccion(token):
+            current_node = AnyNode(id=id, parent=last_capitulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
             last_seccion = current_node
             last_articulo = None
-        elif re.match('^ Artículo', token):
+        elif is_articulo(token):
+            token = formatToken(token)
             if last_seccion is None:
-                current_node = AnyNode(id=id, parent=last_capitulo, name=token, shortname=token.split('.')[0:2])
+                if last_capitulo is None:
+                    current_node = AnyNode(id=id, parent=last_titulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
+                else:
+                    current_node = AnyNode(id=id, parent=last_capitulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
             else:
-                current_node = AnyNode(id=id, parent=last_seccion, name=token, shortname=token.split('.')[0:2])
+                current_node = AnyNode(id=id, parent=last_seccion, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
             last_articulo = current_node
         else:
-            current_node = AnyNode(id=id, parent=last_articulo, name=token)
+            token = formatToken(token)
+            # token = re.sub(r" [)]", ")", token)
+            current_node = AnyNode(id=id, parent=last_articulo, name=token, shortname="")
         id += 1
     return root
 
@@ -204,19 +225,42 @@ def manual_tokenize_query(text):
 def search_node(tree, sentence):
     tokens = manual_tokenize_query(sentence)
     tokens = tokens[1:len(tokens)]
+    print(tokens)
     # this is because it introduces an space at first TODO fix
     if len(tokens) <= 1:
-        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.name))
+        print(tree.children)
+        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.shortname))
         for node in nodes:
             for pre, fill, subnode in RenderTree(node, maxlevel=3):
                 print("%s%s" % (pre, subnode.name))
+        print(nodes)
         return len(nodes) > 0, nodes
     else:
         sentence = " "
         sentence = sentence.join(tokens[1:len(tokens)])
-        nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.name))
+        nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.shortname))
         for node in nodes:
             find, nodes = search_node(node, sentence)
             if find:
                 return find, nodes
         return False, []
+
+def search_articulo(tree, sentence):
+    print(tree.children)
+    nodes = findall(tree, filter_=lambda node: re.match(".*" + sentence + ".*", node.shortname + node.name))
+    for node in nodes:
+        for pre, fill, subnode in RenderTree(node, maxlevel=3):
+            print("%s%s" % (pre, subnode.name))
+    print(nodes)
+    if(nodes):
+        root = AnyNode(id=0, name=tree.name, shortname=tree.shortname, children=nodes)
+        return True, root
+    return False, []
+
+
+
+
+def formatTree(tree):
+    for token in tree:
+        print("hola")
+    return tree

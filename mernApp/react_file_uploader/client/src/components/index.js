@@ -10,9 +10,11 @@ import Links from './Links'
 import useGetLawTree from './FileUpload'
 import ListFiles from './ListUploadedFiles'
 import WordCloud from './WordCloud'
+import LawTreeTextNodeChildrenComponent from './LawTreeTextNodeChildrenComponent'
+import LawTreeTextComponent from './LawTreeTextComponent'
 
 export { FileUpload, Message, Progress, 
     PdfComponent, LawTreeCards, LawTreeCardNodeChildrenComponent, 
     SideNavApp, SearchAppBar, Links, useGetLawTree, ListFiles,
-     WordCloud
+     WordCloud, LawTreeTextNodeChildrenComponent, LawTreeTextComponent
  }

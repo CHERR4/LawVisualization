@@ -1,4 +1,4 @@
-import { SELECT_FILE, ADD_FILES, UPLOAD_FILE_SUCCESS
+import { SELECT_FILE, ADD_FILES
     , GET_UPLOADS_SUCCESS, FILTER_TREE_SUCCESS, LOAD_TREE_SUCCESS } from "../actions/index"
 
 const initialState = {
@@ -26,12 +26,6 @@ function rootReducer(state = initialState, action) {
             law_tree: action.payload.tree.data,
             selected_file: action.payload.file
         });
-    }
-    if(action.type === UPLOAD_FILE_SUCCESS) {
-        console.log(action.payload);
-        return Object.assign({}, state, {
-            selected_file: action.payload.data.fileName
-        })
     }
     if(action.type === GET_UPLOADS_SUCCESS) {
         console.log(action.payload);

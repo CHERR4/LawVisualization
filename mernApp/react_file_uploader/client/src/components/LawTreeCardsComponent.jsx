@@ -38,21 +38,21 @@ export default function LawTreeCardsComponent() {
     selected_file ?
       <div className={classes.root}>
         {selected_file ? <h2 className={classes.heading}>{selected_file}</h2> : null}
-        {array.map((item) =>
+        {array ? array.map((item) =>
         <Grid item xs={12}>
           <ExpansionPanel>   
             <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header">
-            <h3>{item.name}</h3>
+            <h3>{item.shortname}</h3>
             </ExpansionPanelSummary>      
             <ExpansionPanelDetails>
               {Array.isArray(item.children) ? <LawTreeCardNodeChildrenComponent children={item.children}/> : null}
             </ExpansionPanelDetails>   
           </ExpansionPanel>
           </Grid>
-        )}
+        ) : null}
     </div>
     : null
   );

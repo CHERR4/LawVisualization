@@ -5,8 +5,10 @@ import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import store from '../store';
 import { connect } from 'react-redux';
-import { filterTree } from '../actions/index';
+import { filterTree, filterArticulos } from '../actions/index';
 import { useSelector } from 'react-redux'
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -55,13 +57,16 @@ const useStyles = makeStyles((theme) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    filterTree: filter => store.dispatch(filterTree(filter))
+    filterTree: filter => store.dispatch(filterTree(filter)),
+    filterArticulos: filter => store.dispatch(filterArticulos(filter))
   }
 }
+
 
 const ConnectedSearchBox = (props) => {
 
     const [filter, setFilter] = useState('');
+    const [type, setType] = useState('tree');
     const selectedFile = useSelector(state => state.selected_file);
 
     const classes = useStyles();
@@ -70,10 +75,20 @@ const ConnectedSearchBox = (props) => {
       setFilter(e.target.value)
     }
 
+    const handleSearch = (event, newSearch) => {
+      setType(newSearch)
+    }
+
     const onSubmit = (e) => {
       e.preventDefault();
       console.log(filter)
-      props.filterTree({filter, selectedFile});
+      if(type === 'tree') {
+        props.filterTree({filter, selectedFile});
+      }
+      if(type === 'articulo') {
+        props.filterArticulos({filter, selectedFile});
+      }
+      
     }
 
     return (
@@ -96,7 +111,19 @@ const ConnectedSearchBox = (props) => {
               Search
             </Button>
           </div>
-          
+          <ToggleButtonGroup
+            value={type}
+            exclusive
+            onChange={handleSearch}
+            aria-label="text alignment"
+          >
+            <ToggleButton value="tree" aria-label="Tree search">
+              Tree
+            </ToggleButton>
+            <ToggleButton value="articulo" aria-label="Articulo search">
+              Articulo
+            </ToggleButton>
+          </ToggleButtonGroup>
       </form>
     )
 }

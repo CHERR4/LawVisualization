@@ -28,7 +28,7 @@ const LawTree = () => {
                     <ListFiles dir="public/uploads"/>
                 </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={9}>
                 <Grid container justify="flex-start">
                     <LawTreeCards/>
                 </Grid>
