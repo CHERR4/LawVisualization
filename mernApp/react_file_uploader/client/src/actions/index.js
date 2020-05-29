@@ -11,6 +11,8 @@ export const FILTER_TREE_SUCCESS = "FILTER_TREE_SUCCESS"
 export const FILTER_TREE_FAILED = "FILTER_TREE_FAILED"
 export const LOAD_TREE_SUCCESS = "LOAD_TREE_SUCCESS"
 export const LOAD_TREE_FAILED = "LOAD_TREE_FAILED"
+export const CHANGE_OPEN = "CHANGE_OPEN"
+export const CHANGE_OPEN_SUCCESS = "CHANGE_OPEN_SUCCESS"
 
 
 
@@ -171,5 +173,20 @@ export function filterTreeSuccess(payload) {
 export function filterTreeFailed(payload) {
     return {
         type: FILTER_TREE_FAILED, payload
+    }
+}
+
+export function changeMenu(payload) {
+    console.log(payload)
+    return function(dispatch) {
+        dispatch(
+            changeMenuSuccess(payload),
+        )
+    }
+}
+
+export function changeMenuSuccess(payload) {
+    return {
+        type: CHANGE_OPEN_SUCCESS, payload
     }
 }

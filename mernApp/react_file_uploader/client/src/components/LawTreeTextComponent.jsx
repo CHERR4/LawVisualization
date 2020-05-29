@@ -81,18 +81,14 @@ function isTitulo(token) {
 function switchStyle(token, classes) {
   var tokenStr = String(token)
   if(isArtículo(tokenStr)) {
-    console.log('Artículo')
     return classes.articulo
   } else if (isSeccion(tokenStr)) {
-    console.log("Sección")
     return classes.seccion
   } else if(isCapitulo(tokenStr)) {
-    console.log("Capitulo")
     return classes.capitulo
   } else if(isTitulo(tokenStr)){
     return classes.titulo
   } else {
-    console.log("Else")
     return classes.apartado
   }
 }

@@ -9,10 +9,8 @@ import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles({
     root: {
-        marginTop: "6em",
-        marginLeft: 260,
         flexGrow:1,
-        alignContent: "center"
+        // alignContent: "center"
     }
 });
 
@@ -22,14 +20,14 @@ const LawTree = () => {
     const classes = useStyles();
 
     return (
-        <Grid container className={classes.root} spacing={2}>
-            <Grid item xs={2}>
-                <Grid container justify="flex-start">
+        <Grid container direction="row" justify="space-between" alignItems="flex-start" className={classes.root} spacing={2}>
+            <Grid item xs={2}>  
+                <Grid container >
                     <ListFiles dir="public/uploads"/>
                 </Grid>
             </Grid>
-            <Grid item xs={9}>
-                <Grid container justify="flex-start">
+            <Grid item xs={10}>
+                <Grid container >
                     <LawTreeCards/>
                 </Grid>
             </Grid>

@@ -9,6 +9,7 @@ import { filterTree, filterArticulos } from '../actions/index';
 import { useSelector } from 'react-redux'
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import Grid from '@material-ui/core/Grid';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -92,38 +93,44 @@ const ConnectedSearchBox = (props) => {
     }
 
     return (
-        <form onSubmit={onSubmit}>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-            </div>
-            <InputBase
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={onChange}
-            />
-            <Button variant="text" 
-            className={classes.button}
-            startIcon={<SearchIcon />}>
-              Search
-            </Button>
-          </div>
-          <ToggleButtonGroup
-            value={type}
-            exclusive
-            onChange={handleSearch}
-            aria-label="text alignment"
-          >
-            <ToggleButton value="tree" aria-label="Tree search">
-              Tree
-            </ToggleButton>
-            <ToggleButton value="articulo" aria-label="Articulo search">
-              Articulo
-            </ToggleButton>
-          </ToggleButtonGroup>
+        <form onSubmit={onSubmit}>        
+          <Grid container className={classes.root} spacing ={2}>
+            <Grid item xs={6}>
+              <Grid container justify="center">
+                <div className={classes.search}>
+                  <div className={classes.searchIcon}>
+                </div>
+                  <InputBase
+                  placeholder="Search…"
+                  classes={{
+                    root: classes.inputRoot,
+                    input: classes.inputInput,
+                  }}
+                  inputProps={{ 'aria-label': 'search' }}
+                  onChange={onChange}
+                  />
+
+                </div>
+              </Grid>
+            </Grid>
+            <Grid item xs={6}>
+              <Grid container justify="center">
+              <ToggleButtonGroup
+                value={type}
+                exclusive
+                onChange={handleSearch}
+                aria-label="text alignment"
+                >
+                <ToggleButton value="tree" aria-label="Tree search">
+                  Tree
+                </ToggleButton>
+                <ToggleButton value="articulo" aria-label="Articulo search">
+                  Articulo
+                </ToggleButton>
+              </ToggleButtonGroup>
+              </Grid>
+            </Grid>
+          </Grid>
       </form>
     )
 }

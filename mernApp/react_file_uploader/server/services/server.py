@@ -4,7 +4,7 @@ from flask_cors import CORS
 import json
 from utils import read_text_from_pfd, clean_text, tokenize_text, subtokenize_text, \
     create_tokens_tree, tree_as_data_frame, exporter_tree, print_wordcloud, search_node, \
-    search_articulo
+    search_articulo, exporter_tree_list
 
 app = Flask(__name__)
 CORS(app)
@@ -56,15 +56,16 @@ def get_filter_tree():
     if(find):
         exporter = JsonExporter(indent=2)
         print(len(node))
-        array_tree = exporter.export(node[0])
+        array_tree = exporter_tree_list(node)
+        # array_tree = exporter.export(node[0])
         # print(exporter.export(tree))
         data = json.dumps(array_tree)
-        print(data)
+        # print(data)
     else:
         array_tree = exporter_tree(tree)
         # print(exporter.export(tree))
         data = json.dumps(array_tree)
-        print(data)
+        #print(data)
     return data
 
 @app.route('/getFilterArticulos', methods=['GET'])
@@ -84,6 +85,7 @@ def get_filter_articulos():
         #array_tree = exporter.export(node)
         # print(exporter.export(tree))
         array_tree = exporter_tree(node)
+        # print(exporter.export(tree))
         data = json.dumps(array_tree)
         # print(data)
     else:

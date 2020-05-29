@@ -25,7 +25,7 @@ export default function LawTreeCardNodeChildrenComponent(data) {
   const classes = useStyles();
   data = data.children
   return (
-    <Grid container className={classes.root} spacing={2}>
+    <Grid container className={classes.root}>
       {data.map((item) =>
       Array.isArray(item.children) ?
         <ExpansionPanel varian="outlined">   
@@ -36,7 +36,7 @@ export default function LawTreeCardNodeChildrenComponent(data) {
           {item.shortname ? <h3>{item.shortname}</h3> : <h4>{item.name}</h4>}
           </ExpansionPanelSummary>    
           <ExpansionPanelDetails>
-            <Grid container justify="center" spacing={2}>
+            <Grid container>
               <Grid item xs={12}>
                 {item.shortname ?               
                 <div>
@@ -58,7 +58,7 @@ export default function LawTreeCardNodeChildrenComponent(data) {
           {item.shortname ? <h3>{item.shortname}</h3> : <h4>{item.name}</h4>}
           </ExpansionPanelSummary>    
             <ExpansionPanelDetails>
-              <Grid container justify="center" spacing={2}>
+              <Grid container justify="center" spacing={0}>
                 <Grid item xs={12}>
                   {item.shortname ?               
                   <div>

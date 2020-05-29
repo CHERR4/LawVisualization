@@ -63,16 +63,12 @@ function isSeccion(token) {
 function switchStyle(token, classes) {
   var tokenStr = String(token)
   if(isArtículo(tokenStr)) {
-    console.log('Artículo')
     return classes.articulo
   } else if (isSeccion(tokenStr)) {
-    console.log("Sección")
     return classes.seccion
   } else if(isCapitulo(tokenStr)) {
-    console.log("Capitulo")
     return classes.capitulo
   } else {
-    console.log("Else")
     return classes.apartado
   }
 }
@@ -82,7 +78,7 @@ export default function LawTreeTextNodeChildrenComponent(data) {
   const classes = useStyles();
   data = data.children
   return (
-    <Grid container className={classes.root} spacing={2}>
+    <Grid container>
       {data.map((item) =>
       Array.isArray(item.children) ?
         <div>

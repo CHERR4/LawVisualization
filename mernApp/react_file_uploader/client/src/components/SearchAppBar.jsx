@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -10,24 +10,45 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
 import { useHistory } from 'react-router-dom'
-import SearchBox from './SearchBox'
+import { AccountTree, CloudUpload, TextFields } from '@material-ui/icons';
+import  SearchBox  from './SearchBox'
+import { changeMenu } from '../actions'
+import store from '../store/index';
+import { connect, useSelector } from 'react-redux';
 
-
-
-
-
-const drawerWidth = 240;
+const drawerWidth = 180;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
   appBar: {
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  hide: {
+    display: 'none',
   },
   drawer: {
     width: drawerWidth,
@@ -36,49 +57,33 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     width: drawerWidth,
   },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.default,
-    padding: theme.spacing(3),
-  },
-  search: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto',
-    },
-  },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
+  drawerHeader: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputRoot: {
-    color: 'inherit',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-end',
   },
 }));
 
-export default function PersistentDrawerLeft() {
+const mapDispatchToProps = (dispatch) => {
+  return {
+    changeMenu: value => store.dispatch(changeMenu(value)),
+  }
+}
+
+
+const ConnectedPersistentDrawerLeft = (props) => {
   const classes = useStyles();
-  const [open] = React.useState(false);
+  const theme = useTheme();
+  const open = useSelector(state => state.open);
   const history = useHistory();
   const goLawTree = () => history.push('/lawTree');
   const goUpload = () => history.push('/lawUpload')
   const goLawText = () => history.push('/lawText')
+
+  const handleDrawer = (value) => props.changeMenu(value);
 
 
   return (
@@ -94,40 +99,52 @@ export default function PersistentDrawerLeft() {
           <IconButton
             color="inherit"
             aria-label="open drawer"
+            onClick={() => handleDrawer(true)}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            PARLAMENTO DE CANARIAS
+            Parlamento de Canarias
           </Typography>
           <SearchBox/>
         </Toolbar>
       </AppBar>
       <Drawer
         className={classes.drawer}
-        variant="permanent"
+        variant="persistent"
+        anchor="left"
+        open={open}
         classes={{
           paper: classes.drawerPaper,
         }}
-        anchor="left"
       >
-        <div className={classes.toolbar} />
+        <div className={classes.drawerHeader}>
+          <IconButton onClick={() => handleDrawer(false)}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </div>
         <Divider />
         <List>
          <ListItem button key="Tree" onClick={goLawTree}>
            <ListItemText primary="Tree"/>
+           <AccountTree/>
          </ListItem>
          <ListItem button key="Upload" onClick={goUpload}>
            <ListItemText primary="Upload"/>
+           <CloudUpload/>
          </ListItem>
          <ListItem button key="Text" onClick={goLawText}>
            <ListItemText primary="Text"/>
+           <TextFields/>
          </ListItem>
         </List>
-        <Divider />
       </Drawer>
     </div>
   );
 }
+
+const SearchAppBar = connect(null, mapDispatchToProps)(ConnectedPersistentDrawerLeft)
+
+export default SearchAppBar

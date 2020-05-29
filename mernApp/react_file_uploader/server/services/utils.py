@@ -192,6 +192,13 @@ def exporter_tree(tree):
         array.append(exporter.export(child))
     return array
 
+def exporter_tree_list(tree_list):
+    exporter = JsonExporter(indent = 2)
+    array = []
+    for tree in tree_list:
+        array.append(exporter.export(tree))
+    return array
+
 
 def print_wordcloud(text, document):
     stopwords_spanish = stopwords.words('spanish')
@@ -246,16 +253,24 @@ def search_node(tree, sentence):
         return False, []
 
 def search_articulo(tree, sentence):
-    print(tree.children)
-    nodes = findall(tree, filter_=lambda node: re.match(".*" + sentence + ".*", node.shortname + node.name))
-    for node in nodes:
-        for pre, fill, subnode in RenderTree(node, maxlevel=3):
-            print("%s%s" % (pre, subnode.name))
-    print(nodes)
-    if(nodes):
-        root = AnyNode(id=0, name=tree.name, shortname=tree.shortname, children=nodes)
-        return True, root
-    return False, []
+    # nodes = findall(tree, filter_=lambda node: re.match(".*" + sentence + ".*", node.shortname + node.name), maxlevel=2)
+    if tree.children:
+        nodes = []
+        for node in tree.children:
+            find, nodeList = search_articulo(node, sentence)
+            if find:
+                nodes.append(nodeList)
+        if nodes:
+            node = AnyNode(id=tree.id, shortname=tree.shortname, name=tree.name, children=nodes)
+            return True, node
+        else:
+            return False, None
+    else:
+        if re.match(".*" + sentence + ".*", tree.shortname + tree.name):
+            return True, tree
+        else:
+            return False, None
+    return False, None
 
 
 

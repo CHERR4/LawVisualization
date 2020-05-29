@@ -17,12 +17,12 @@ from wordcloud import WordCloud
 """
 Un título tiene capítulos
 Un capítulo tiene secciones
-Un capítulo tien artículos
+Un capítulo tiene artículos
 Una sección tiene artículos
 Un artículo tiene puntos
 """
 MAX_WEIGHT = 10
-PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
+PDF_FILE = 'bo162.pdf'
 TEXT_FILE = 'lawText.txt'
 TOKENS_FILE = 'tokens.txt'
 
@@ -69,7 +69,8 @@ def is_seccion(token):
 def is_titulo(token):
     token = token.strip()
     pattern = re.compile('^Título.*')
-    return pattern.match(token)
+    pattern_2 = re.compile('^TÍTULO.*')
+    return pattern.match(token) or pattern_2.match(token)
 
 
 def is_keyword(word):
@@ -112,6 +113,10 @@ def tokenize_text(text):
     # Tokenization by common tokenizer 
     # Want to change for tokenization by important words
     sentences = manual_tokenize(text)
+    text_file = open("outputs/" + "sentences.txt", "w+")
+    for sentence in sentences:
+        text_file.write(sentence+"\n")
+    text_file.close()
     # Getting important words, this is just for seeing that stract them correctly
     # My objetive is to make a structure with all of them
     articulos = filter(is_articulo, sentences)
@@ -144,7 +149,7 @@ def subtokenize_text(tokens):
 
 def create_tokens_tree(tokens):
     id = 1
-    root = AnyNode(id=0, text="root")
+    root = AnyNode(id=0, name="root")
     last_titulo = None
     last_capitulo = None
     last_seccion = None
@@ -152,30 +157,34 @@ def create_tokens_tree(tokens):
     current_node = None
     for token in tokens:
         token = token.replace("/^\s*\s*$/", "")
-        if re.match("^ Título", token):
+        if is_titulo(token):
             if not (re.match(".*[.].*", token[0:140])):
-                current_node = AnyNode(id=id, parent=root, text=token)
+                current_node = AnyNode(id=id, parent=root, name=token)
                 last_titulo = current_node
                 last_capitulo = None
                 last_seccion = None
                 last_articulo = None
-        elif re.match('^ Capítulo', token):
-            current_node = AnyNode(id=id, parent=last_titulo, text=token)
+        elif is_capitulo(token):
+            current_node = AnyNode(id=id, parent=last_titulo, name=token)
             last_capitulo = current_node
             last_seccion = None
             last_articulo = None
-        elif re.match('^ Sección', token):
-            current_node = AnyNode(id=id, parent=last_capitulo, text=token)
+        elif is_seccion(token):
+            current_node = AnyNode(id=id, parent=last_capitulo, name=token)
             last_seccion = current_node
             last_articulo = None
-        elif re.match('^ Artículo', token):
+        elif is_articulo(token):
             if last_seccion is None:
-                current_node = AnyNode(id=id, parent=last_capitulo, text=token)
+                if last_capitulo is None:
+                    current_node = AnyNode(id=id, parent=last_titulo, name=token, shortname=token.split('.')[0:2])
+                else:
+                    current_node = AnyNode(id=id, parent=last_capitulo, name=token, shortname=token.split('.')[0:2])
             else:
-                current_node = AnyNode(id=id, parent=last_seccion, text=token)
+                current_node = AnyNode(id=id, parent=last_seccion, name=token, shortname=token.split('.')[0:2])
             last_articulo = current_node
-        elif re.match('^ [a-z] [)]', token):
-            current_node = AnyNode(id=id, parent=last_articulo, text=token)
+        # Improve this one to generalize tu enum too
+        else:
+            current_node = AnyNode(id=id, parent=last_articulo, name=token)
         id += 1
     return root
 
@@ -189,6 +198,10 @@ def delete_node(tree, node1, node2):
 
 def save_text(text):
     text_file = open("outputs/" + TEXT_FILE, "w+")
+    text_file.write(text)
+    text_file.close()
+    text = text.replace("/\s\s+/g", ' ')
+    text_file = open("outputs/" + "text_whitespaces.txt", "w+")
     text_file.write(text)
     text_file.close()
 
@@ -252,15 +265,15 @@ def search_node(tree, sentence):
     tokens = tokens[1:len(tokens)]
     # this is because it introduces an space at first TODO fix
     if len(tokens) <= 1:
-        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.text))
+        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.name))
         for node in nodes:
             for pre, fill, subnode in RenderTree(node, maxlevel=3):
-                print("%s%s" % (pre, subnode.text))
+                print("%s%s" % (pre, subnode.name))
         return len(nodes) > 0, nodes
     else:
         sentence = " "
         sentence = sentence.join(tokens[1:len(tokens)])
-        nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.text))
+        nodes = findall(tree, filter_=lambda node: re.match("^.*" + tokens[0] + "[ .].*", node.name))
         for node in nodes:
             find, nodes = search_node(node, sentence)
             if find:
@@ -270,7 +283,7 @@ def search_node(tree, sentence):
 
 def print_tokens_tree(tree, level=2):
     for pre, fill, subnode in RenderTree(tree, maxlevel=level):
-        print("%s%s%s" % (pre, subnode.id, subnode.text))
+        print("%s%s%s" % (pre, subnode.id, subnode.name))
 
 
 def print_wordcloud(text):
@@ -308,11 +321,11 @@ def main():
     print_tokens_tree(tree)
     print_wordcloud(text)
     # save_tree_as_graph(tree)
-    tree_df = tree_as_data_frame(tree)
-    print(tree_df.info())
-    print(tree_df.head(10))
-    print(len(tree_df))
-    tree_df.to_json('outputs/law_tree.json', orient='table')
+    # tree_df = tree_as_data_frame(tree)
+    # print(tree_df.info())
+    # print(tree_df.head(10))
+    # print(len(tree_df))
+    # tree_df.to_json('outputs/law_tree.json', orient='table')
 
     # tree_as_data_frame(tree)
     # dictTree = create_dict_tree(tree)

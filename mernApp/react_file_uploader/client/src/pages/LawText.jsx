@@ -9,8 +9,8 @@ import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles({
     root: {
-        marginTop: "6em",
-        marginLeft: 260,
+        marginTop: "0em",
+        marginLeft: "0em",
         flexGrow:1,
         alignContent: "center"
     }
@@ -22,14 +22,14 @@ const LawText = () => {
     const classes = useStyles();
 
     return (
-        <Grid container className={classes.root} spacing={8}>
+        <Grid container  direction="row" justify="space-between" alignItems="flex-start" className={classes.root} >
             <Grid item xs={2}>
-                <Grid container justify="flex-start">
+                <Grid container>
                     <ListFiles dir="public/uploads"/>
                 </Grid>
             </Grid>
             <Grid item xs={9}>
-                <Grid container justify="flex-end">
+                <Grid container>
                     <LawTreeTextComponent/>
                 </Grid>
             </Grid>

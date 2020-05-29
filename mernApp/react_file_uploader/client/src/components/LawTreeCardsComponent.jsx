@@ -7,18 +7,72 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import LawTreeCardNodeChildrenComponent from './LawTreeCardNodeChildrenComponent';
 import Grid from '@material-ui/core/Grid';
 import { useSelector } from "react-redux";
+import { Typography } from '@material-ui/core';
+
 
 // https://material-ui.com/es/components/expansion-panels/
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginTop: '1em',
-    width: '200%',
+    width: '1 00%',
   },
   heading: {
     alignContent: "center",
   },
+  capitulo: {
+  }, 
+  seccion: {
+
+  },
+  articulo: {
+
+  },
+  apartado: {
+
+  },
+  titulo: {
+
+  }
 }));
+
+function isCapitulo(token) {
+  var regexp = /Capítulo/
+  var pos = token.search(regexp)
+  return pos === 1 || pos === 0
+}
+
+function isArtículo(token) {
+  var regexp = /Artículo/
+  var pos = token.search(regexp)
+  return pos === 1 || pos === 0
+}
+
+function isSeccion(token) {
+  var regexp = /Sección/
+  var pos = token.search(regexp)
+  return pos === 1 || pos === 0
+}
+
+function isTitulo(token) {
+  var regexp = /Título/
+  var pos = token.search(regexp)
+  return pos === 1 || pos === 0
+}
+
+function switchStyle(token, classes) {
+  var tokenStr = String(token)
+  if(isArtículo(tokenStr)) {
+    return classes.articulo
+  } else if (isSeccion(tokenStr)) {
+    return classes.seccion
+  } else if(isCapitulo(tokenStr)) {
+    return classes.capitulo
+  } else if(isTitulo(tokenStr)){
+    return classes.titulo
+  } else {
+    return classes.apartado
+  }
+}
 
 export default function LawTreeCardsComponent() {
   const selected_file = useSelector(state => state.selected_file)
@@ -48,7 +102,18 @@ export default function LawTreeCardsComponent() {
             <h3>{item.shortname}</h3>
             </ExpansionPanelSummary>      
             <ExpansionPanelDetails>
-              {Array.isArray(item.children) ? <LawTreeCardNodeChildrenComponent children={item.children}/> : null}
+              <Grid container>
+                  <Grid item xs={12}>
+                      <Grid container>
+                        <p>{item.name}</p>
+                      </Grid>
+                  </Grid>
+                  <Grid item xs={12}>
+                      <Grid container>
+                        {Array.isArray(item.children) ? <LawTreeCardNodeChildrenComponent children={item.children}/> : null}
+                      </Grid>
+                  </Grid>
+              </Grid>
             </ExpansionPanelDetails>   
           </ExpansionPanel>
           </Grid>
