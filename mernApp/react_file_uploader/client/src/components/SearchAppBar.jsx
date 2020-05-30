@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
+import Grid from '@material-ui/core/Grid';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -80,8 +81,9 @@ const ConnectedPersistentDrawerLeft = (props) => {
   const open = useSelector(state => state.open);
   const history = useHistory();
   const goLawTree = () => history.push('/lawTree');
-  const goUpload = () => history.push('/lawUpload')
-  const goLawText = () => history.push('/lawText')
+  const goUpload = () => history.push('/lawUpload');
+  const goLawText = () => history.push('/lawText');
+  const goWordcloud = () => history.push('/lawWordcloud');
 
   const handleDrawer = (value) => props.changeMenu(value);
 
@@ -95,21 +97,31 @@ const ConnectedPersistentDrawerLeft = (props) => {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => handleDrawer(true)}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            Parlamento de Canarias
-          </Typography>
-          <SearchBox/>
-        </Toolbar>
+        <Grid container direction="row" justify="space-between" alignItems="flex-start">
+          
+          <Toolbar>
+            <Grid item container>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={() => handleDrawer(true)}
+                edge="start"
+                className={clsx(classes.menuButton, open && classes.hide)}
+              >
+              
+                <MenuIcon />
+              </IconButton>
+            </Grid>
+            <Grid item container>
+              <Typography variant="h6" noWrap>
+                Parlamento de Canarias
+              </Typography>
+            </Grid>
+            <Grid item container>
+              <SearchBox/>
+            </Grid>
+          </Toolbar>
+        </Grid>
       </AppBar>
       <Drawer
         className={classes.drawer}
@@ -140,6 +152,10 @@ const ConnectedPersistentDrawerLeft = (props) => {
            <TextFields/>
          </ListItem>
         </List>
+        <ListItem button key="Wordcloud" onClick={goWordcloud}>
+           <ListItemText primary="Wordcloud"/>
+           <TextFields/>
+         </ListItem>
       </Drawer>
     </div>
   );

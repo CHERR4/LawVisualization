@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { Wordcloud } from '../components';
 //https://redux.js.org/advanced/async-actions
-export const SELECT_FILE = "SELECT_FILE";
+export const SELECT_FILE_SUCCESS = "SELECT_FILE_SUCCESS";
 export const ADD_FILES = "ADD_FILES";
 export const LOAD_TREE = "LOAD_TREE";
 export const UPLOAD_FILE_SUCCESS = "UPLOAD_FILE_SUCCESS"
@@ -13,14 +14,28 @@ export const LOAD_TREE_SUCCESS = "LOAD_TREE_SUCCESS"
 export const LOAD_TREE_FAILED = "LOAD_TREE_FAILED"
 export const CHANGE_OPEN = "CHANGE_OPEN"
 export const CHANGE_OPEN_SUCCESS = "CHANGE_OPEN_SUCCESS"
+export const LOAD_WORDCLOUD_SUCCESS = "LOAD_WORDCLOUD_SUCCESS"
+export const LOAD_WORDCLOUD_FAILED = "LOAD_WORDCLOUD_FAILED"
 
 
 
 export function selectFile(payload) {
-    console.log(payload.file)
+    console.log(payload);
     return function(dispatch) {
-        return { type: SELECT_FILE, payload}
+        dispatch(
+            loadTree(payload),
+        );
+        dispatch(
+            loadWordcloud(payload)
+        );
+        dispatch(
+            selectFileSuccess(payload)
+        )
     }
+}
+
+export function selectFileSuccess(payload) {
+    return { type: SELECT_FILE_SUCCESS, payload }
 }
 
 export function addFiles(payload) {
@@ -121,6 +136,39 @@ export function getUploadsSuccess(payload) {
 export function getUploadsFailed(payload) {
     return {
         type: GET_UPLOADS_FAILED, payload
+    }
+}
+
+export function loadWordcloud(payload) {
+    console.log(payload)
+    return function(dispatch) {
+        dispatch(loadWordcloudSuccess({"wordcloud": "http://localhost:5001/getWordcloud/" + payload.file}))
+    }
+    /*
+    return function(dispatch) {
+        return axios.get("http://localhost:5001/getWordcloud/" + payload.file)
+        .then(wordcloud =>
+            dispatch(
+                loadWordcloudSuccess({"wordcloud": wordcloud, "file": payload.file}),
+            ),
+            error =>
+            dispatch(
+                loadWordcloudFailed(error)
+            )
+        )
+    };
+    */
+}
+
+export function loadWordcloudSuccess(payload) {
+    return {
+        type: LOAD_WORDCLOUD_SUCCESS, payload
+    }
+}
+
+export function loadWordcloudFailed(payload) {
+    return {
+        type: LOAD_WORDCLOUD_FAILED, payload
     }
 }
 

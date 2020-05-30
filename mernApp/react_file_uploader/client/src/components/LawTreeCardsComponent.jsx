@@ -89,7 +89,7 @@ export default function LawTreeCardsComponent() {
 
   console.log(array)
   return ( 
-    selected_file ?
+    array[0] !== null ?
       <div className={classes.root}>
         {selected_file ? <h2 className={classes.heading}>{selected_file}</h2> : null}
         {array ? array.map((item) =>

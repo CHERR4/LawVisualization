@@ -210,7 +210,7 @@ def print_wordcloud(text, document):
     wc.generate(text)
     # store to file
     wc.to_file("outputs/" + document + ".png")
-    return wc.generate(text)
+    return document + ".png"
 
 def manual_tokenize_query(text):
     tokens = nltk.word_tokenize(text)

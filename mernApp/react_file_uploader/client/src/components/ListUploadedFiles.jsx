@@ -9,7 +9,7 @@ import { connect, useSelector } from "react-redux";
 import store from '../store/index'
 // https://github.com/valentinogagliardi/react-redux-tutorial/blob/your-first-redux-saga/src/js/components/Form.js
 
-import { loadTree } from "../actions/index"
+import { selectFile } from "../actions/index"
 
 const useStyles =  makeStyles(() => ({
 
@@ -20,7 +20,7 @@ const useStyles =  makeStyles(() => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    loadTree: file => store.dispatch(loadTree(file))
+    selectFile: file => store.dispatch(selectFile(file))
   };
 }
 
@@ -28,7 +28,7 @@ const mapDispatchToProps = (dispatch) => {
 const ConnectedListFiles = (props) => {
   const handleClick = (file)  => {
     console.log(file)
-    props.loadTree({ file })
+    props.selectFile({ file })
   }
 
     const files = useSelector(state => state.files);

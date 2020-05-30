@@ -30,10 +30,10 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "0.5em",
   },
   articulo: {
-    fontSize: "2em",
+    fontsize: "2em",
     fontWeight: theme.typography.fontWeightBold,
-    marginTop: "0.5em",
-    marginBottom: "0.2em",
+    textAlign: "left",
+    marginBottom: "0.7em",
   },
   apartado: {
     fontsize: "2em",
@@ -41,11 +41,10 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "0.7em",
   },
   titulo: {
-    fontSize: "3em",
+    fontsize: "2em",
     fontWeight: theme.typography.fontWeightBold,
-    // lineHeight: "0.5em",
-    marginTop: "0.7em",
-    //marginBottom: "0.5em"
+    textAlign: "center",
+    marginBottom: "0.7em",
   },
   apartado: {
     fontsize: "2em",
@@ -96,9 +95,11 @@ function switchStyle(token, classes) {
 export default function LawTreeTextComponent() {
   const selected_file = useSelector(state => state.selected_file)
   const data = useSelector(state => state.law_tree);
+  console.log(data)
   const classes = useStyles();
   let array = []
   if(Array.isArray(data)){
+    
     for(let i=0; i< data.length;i++){
       array.push(JSON.parse(data[i]))
     }
@@ -108,7 +109,7 @@ export default function LawTreeTextComponent() {
 
   console.log(array)
   return ( 
-    selected_file ?
+    array[0] !== null  ?
       <div className={classes.root}>
         {selected_file ? <h2 className={classes.heading}>{selected_file}</h2> : null}
         {array ? array.map((item) =>
