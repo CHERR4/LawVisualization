@@ -27,3 +27,5 @@ To use it:
       5. Install any additional required package
   3. `python3 server.py`
   
+  ## App
+  You can launch in any navigator http://localhost:3000/ and try the differente features with different laws that are on the repo, at the moment not all document work
