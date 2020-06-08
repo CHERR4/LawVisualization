@@ -37,16 +37,3 @@ const LawTree = () => {
 
 
 export default LawTree
-
-/*
-export function useGetLawTree(document) {
-    console.log(document)
-    const [data, setData] = useState();
-    useEffect(() => {
-      axios.get("http://localhost:5001/getLawTree/" + document).then(response =>{
-        setData(response);
-      })
-    }, [document])
-    return data
-}
-*/

@@ -1,4 +1,5 @@
 import os, glob, subprocess
+import time
 import pdftotext
 import json
 import re
@@ -14,6 +15,7 @@ from anytree.search import find, find_by_attr, findall
 from collections import OrderedDict
 from wordcloud import WordCloud
 
+
 """
 Un título tiene capítulos
 Un capítulo tiene secciones
@@ -21,8 +23,7 @@ Un capítulo tiene artículos
 Una sección tiene artículos
 Un artículo tiene puntos
 """
-MAX_WEIGHT = 10
-PDF_FILE = 'bo162.pdf'
+PDF_FILE = 'bo291_ANTES GOBIERNO.pdf'
 TEXT_FILE = 'lawText.txt'
 TOKENS_FILE = 'tokens.txt'
 
@@ -78,10 +79,15 @@ def is_keyword(word):
 
 
 def manual_tokenize(text):
+    start_time = time.time()
     tokens = nltk.word_tokenize(text)
+    num_words = len(tokens)
+    duration = time.time() - start_time
+    print("Duration: ", duration)
+    print("Num words: ", num_words)
     articulos = [""]
     for token in tokens:
-        if is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token):
+        if is_keyword(token):
             articulos.append(token)
         else:
             articulos[len(articulos) - 1] += (' ' + token)
@@ -158,6 +164,7 @@ def create_tokens_tree(tokens):
     for token in tokens:
         token = token.replace("/^\s*\s*$/", "")
         if is_titulo(token):
+            # I omit the tokens which I don't want
             if not (re.match(".*[.].*", token[0:140])):
                 current_node = AnyNode(id=id, parent=root, name=token)
                 last_titulo = current_node
@@ -182,7 +189,6 @@ def create_tokens_tree(tokens):
             else:
                 current_node = AnyNode(id=id, parent=last_seccion, name=token, shortname=token.split('.')[0:2])
             last_articulo = current_node
-        # Improve this one to generalize tu enum too
         else:
             current_node = AnyNode(id=id, parent=last_articulo, name=token)
         id += 1

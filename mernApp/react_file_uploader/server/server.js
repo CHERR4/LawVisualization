@@ -4,8 +4,8 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const path = require('path');
 const fs = require('fs');
-const db = require('./db')
-const lawTokenRouter = require('./routes/lawToken-router')
+// const db = require('./db')
+//const lawTokenRouter = require('./routes/lawToken-router')
 
 const app = express();
 const PORT = 5000
@@ -15,7 +15,7 @@ app.use(cors())
 app.use(fileUpload());
 app.use(bodyParser.json())
 
-db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+//db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
 // Upload Endpoint
 app.post('/upload', (req, res) => {
@@ -63,6 +63,6 @@ app.get('/uploads', (req, res) => {
   });
 })
 
-app.use('/api', lawTokenRouter)
+// app.use('/api', lawTokenRouter)
 
 app.listen(PORT, () => console.log(`Server Started...port ${PORT}`));

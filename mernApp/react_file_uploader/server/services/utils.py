@@ -204,8 +204,9 @@ def print_wordcloud(text, document):
     stopwords_spanish = stopwords.words('spanish')
     stopwords_spanish.extend(['Artículo', 'Boletín', 'Oficial', 'Parlamento', 'Canarias'])
     # Here I can add all the worlds I dont like as stopwords
-    wc = WordCloud(background_color="white", max_words=2000,
-                   stopwords=stopwords_spanish, contour_width=3, contour_color='steelblue')
+    wc = WordCloud(background_color="white", max_words=100,
+                   stopwords=stopwords_spanish, contour_width=3, contour_color='steelblue',
+                   width=600, height=300)
     # generate word cloud
     wc.generate(text)
     # store to file

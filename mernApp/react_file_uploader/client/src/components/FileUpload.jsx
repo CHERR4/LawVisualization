@@ -31,8 +31,8 @@ const ConnectedFileUpload = (props) => {
   
 
   const onChange = e => {
-    setFile(e.target.files[0]);
-    setFilename(e.target.files[0].name);
+      setFile(e.target.files[0]);
+      setFilename(e.target.files[0].name);
   };
 
   const onSubmit = e => {

@@ -97,9 +97,14 @@ export default function LawTreeTextNodeChildrenComponent(data) {
             </Grid>
           </Grid>
         </div>
-        : <div>
-          <Typography className={switchStyle(item.name, classes)}>{item.name}</Typography>
+        :         <div>
+        {item.shortname ?  
+        <div>
+        <Typography className={switchStyle(item.shortname, classes)}>{item.shortname}</Typography> 
+        <Typography  className={switchStyle(item.name, classes)}>{item.name}</Typography> 
         </div>
+        : <Typography className={switchStyle(item.name, classes)}>{item.name}</Typography>}
+      </div>
       )}
   </Grid>
 );

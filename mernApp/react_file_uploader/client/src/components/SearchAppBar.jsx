@@ -24,6 +24,7 @@ import  SearchBox  from './SearchBox'
 import { changeMenu } from '../actions'
 import store from '../store/index';
 import { connect, useSelector } from 'react-redux';
+import ToolBarApp from './ToolBar'
 
 const drawerWidth = 180;
 
@@ -97,10 +98,10 @@ const ConnectedPersistentDrawerLeft = (props) => {
           [classes.appBarShift]: open,
         })}
       >
-        <Grid container direction="row" justify="space-between" alignItems="flex-start">
-          
-          <Toolbar>
-            <Grid item container>
+        <Toolbar>
+          <Grid container direction="row" alignItems="baseline">          
+            <Grid item>
+              <Grid container >
               <IconButton
                 color="inherit"
                 aria-label="open drawer"
@@ -108,20 +109,15 @@ const ConnectedPersistentDrawerLeft = (props) => {
                 edge="start"
                 className={clsx(classes.menuButton, open && classes.hide)}
               >
-              
                 <MenuIcon />
               </IconButton>
+              </Grid>
             </Grid>
-            <Grid item container>
-              <Typography variant="h6" noWrap>
-                Parlamento de Canarias
-              </Typography>
+            <Grid item xs={8}>
+                <ToolBarApp/>
             </Grid>
-            <Grid item container>
-              <SearchBox/>
-            </Grid>
-          </Toolbar>
-        </Grid>
+          </Grid>
+        </Toolbar> 
       </AppBar>
       <Drawer
         className={classes.drawer}
