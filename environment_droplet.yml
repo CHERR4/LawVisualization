@@ -1,0 +1,5 @@
+name: tfg
+channels:
+  - defaults
+prefix: /home/cherra/anaconda3/envs/tfg
+
