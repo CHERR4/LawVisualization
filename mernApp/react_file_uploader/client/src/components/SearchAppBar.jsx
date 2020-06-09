@@ -19,7 +19,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { useHistory } from 'react-router-dom'
-import { AccountTree, CloudUpload, TextFields } from '@material-ui/icons';
+import { AccountTree, CloudUpload, TextFields} from '@material-ui/icons';
+import SubjectIcon from '@material-ui/icons/Subject';
 import  SearchBox  from './SearchBox'
 import { changeMenu } from '../actions'
 import store from '../store/index';
@@ -145,7 +146,7 @@ const ConnectedPersistentDrawerLeft = (props) => {
          </ListItem>
          <ListItem button key="Text" onClick={goLawText}>
            <ListItemText primary="Text"/>
-           <TextFields/>
+           <SubjectIcon/>
          </ListItem>
         </List>
         <ListItem button key="Wordcloud" onClick={goWordcloud}>

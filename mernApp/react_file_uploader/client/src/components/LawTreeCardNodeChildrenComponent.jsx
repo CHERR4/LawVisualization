@@ -50,27 +50,22 @@ export default function LawTreeCardNodeChildrenComponent(data) {
           </ExpansionPanelDetails>  
         </ExpansionPanel>
         : <div>
+        {item.shortname ?  
+        <div>
           <ExpansionPanel varian="outlined"> 
-          <ExpansionPanelSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel1a-content"
-        id="panel1a-header">
-          {item.shortname ? <h3>{item.shortname}</h3> : <h4>{item.name}</h4>}
-          </ExpansionPanelSummary>    
+            <ExpansionPanelSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header">
+              <h3>{item.shortname}</h3>
+            </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-              <Grid container justify="center" spacing={0}>
-                <Grid item xs={12}>
-                  {item.shortname ?               
-                  <div>
-                    <h4>{item.name}</h4>
-                    </div> : null}
-                </Grid>
-                <Grid item xs={12}>
-              </Grid>
-            </Grid>
-            </ExpansionPanelDetails>  
-          </ExpansionPanel>
+              <h4>{item.name}</h4>
+            </ExpansionPanelDetails>
+          </ExpansionPanel>        
         </div>
+        : <h4>{item.name}</h4>}
+      </div>
       )}
   </Grid>
 );

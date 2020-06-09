@@ -196,7 +196,8 @@ export function filterArticulos(payload) {
     console.log(payload)
     const params = {
         "document": payload.selectedFile,
-        "filter": payload.filter
+        "filter": payload.filter,
+        "case_sensitive": payload.caseSensitive
     };
     return function(dispatch) {
         return axios.get('http://localhost:5001/getFilterArticulos', { params })

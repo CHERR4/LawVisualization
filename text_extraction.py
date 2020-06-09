@@ -140,6 +140,8 @@ def subtokenize_token(token):
     for word in words:
         if len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
             subtokens.extend(word)
+        elif len(word) == 1 and count > 0 and words[count - 1] == '.':
+            subtokens.extend(word)
         else:
             subtokens[len(subtokens) - 1] += (' ' + word)
         count += 1

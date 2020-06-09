@@ -52,8 +52,7 @@ def manual_tokenize(text):
 def is_articulo(token):
     token = token.strip()
     pattern = re.compile('^Artículo')
-    pattern_2 = re.compile('^TÍTULO.*')
-    return pattern.match(token) or pattern_2.match(token)
+    return pattern.match(token)
 
 
 def is_capitulo(token):
@@ -99,6 +98,8 @@ def subtokenize_token(token):
     count = 0
     for word in words:
         if len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
+            subtokens.extend(word)
+        elif word.isnumeric() and count > 1 and words[count - 1] == '.' and words[count -2] != 'Núm':
             subtokens.extend(word)
         else:
             subtokens[len(subtokens) - 1] += (' ' + word)
@@ -253,27 +254,40 @@ def search_node(tree, sentence):
                 return find, nodes
         return False, []
 
-def search_articulo(tree, sentence):
+def search_articulo(tree, sentence, case_sensitive):
     # nodes = findall(tree, filter_=lambda node: re.match(".*" + sentence + ".*", node.shortname + node.name), maxlevel=2)
-    if tree.children:
+    if not case_sensitive and re.match(".*" + sentence + ".*", tree.shortname + tree.name, flags=re.IGNORECASE):
+        return True, tree
+    elif case_sensitive and re.match(".*" + sentence + ".*", tree.shortname + tree.name):
+        return True, tree
+    elif tree.children:
         nodes = []
         for node in tree.children:
-            find, nodeList = search_articulo(node, sentence)
+            find, nodeList = search_articulo(node, sentence, case_sensitive)
             if find:
                 nodes.append(nodeList)
         if nodes:
             node = AnyNode(id=tree.id, shortname=tree.shortname, name=tree.name, children=nodes)
             return True, node
-        else:
-            return False, None
-    else:
-        if re.match(".*" + sentence + ".*", tree.shortname + tree.name):
-            return True, tree
-        else:
-            return False, None
     return False, None
 
-
+def search_word(tree, words, case_sensitive):
+    array_words = words.split()
+    for word in array_words:
+        if not case_sensitive and re.match(".*" + word + ".*", tree.shortname + tree.name, flags=re.IGNORECASE):
+            return True, tree
+        elif case_sensitive and re.match(".*" + word + ".*", tree.shortname + tree.name):
+            return True, tree
+        elif tree.children:
+            nodes = []
+            for node in tree.children:
+                find, nodeList = search_articulo(node, words, case_sensitive)
+                if find:
+                    nodes.append(nodeList)
+            if nodes:
+                node = AnyNode(id=tree.id, shortname=tree.shortname, name=tree.name, children=nodes)
+                return True, node
+    return False, None
 
 
 def formatTree(tree):

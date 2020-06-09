@@ -13,6 +13,10 @@ import Grid from '@material-ui/core/Grid';
 
 
 const useStyles = makeStyles((theme) => ({
+  root: { 
+    width: '100%',
+    //minWidth: '50em'
+  },
     search: {
         position: 'relative',
         borderRadius: theme.shape.borderRadius,
@@ -47,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('md')]: {
-          width: '20ch',
+          width: '30ch',
         },
       }, 
       button: {
@@ -67,6 +71,7 @@ const mapDispatchToProps = (dispatch) => {
 const ConnectedSearchBox = (props) => {
 
     const [filter, setFilter] = useState('');
+    const [caseSensitive, setCaseSensitive] = useState(false)
     const [type, setType] = useState('tree');
     const selectedFile = useSelector(state => state.selected_file);
 
@@ -87,7 +92,7 @@ const ConnectedSearchBox = (props) => {
         props.filterTree({filter, selectedFile});
       }
       if(type === 'articulo') {
-        props.filterArticulos({filter, selectedFile});
+        props.filterArticulos({filter, selectedFile, caseSensitive});
       }
       
     }
@@ -95,7 +100,7 @@ const ConnectedSearchBox = (props) => {
     return (
         <form onSubmit={onSubmit}>        
           <Grid container className={classes.root} spacing ={2}>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Grid container justify="center">
                 <div className={classes.search}>
                   <div className={classes.searchIcon}>
@@ -113,7 +118,7 @@ const ConnectedSearchBox = (props) => {
                 </div>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <Grid container justify="center">
               <ToggleButtonGroup
                 value={type}
