@@ -2,11 +2,11 @@
 
 LawVisualization is a TFG project in order to visualizate of a better way the laws
 
-  node version: v10.19.0
-  npm version: 6.14.4
-  python version: 3.7.6
-  pip version: 20.0.2 from python 3.7
-  git version: 2.25.1
+  - node version: v10.19.0
+  - npm version: 6.14.4
+  - python version: 3.7.6
+  - pip version: 20.0.2 from python 3.7
+  - git version: 2.25.1
 
 To use it:
   1. `git clone https://github.com/CHERR4/LawVisualization.git`
