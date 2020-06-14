@@ -1,5 +1,6 @@
-import { SELECT_FILE_SUCCESS, ADD_FILES
-    , GET_UPLOADS_SUCCESS, FILTER_TREE_SUCCESS, LOAD_TREE_SUCCESS, CHANGE_OPEN_SUCCESS, LOAD_WORDCLOUD_SUCCESS } from "../actions/index"
+import { SELECT_FILE_SUCCESS, ADD_FILES, GET_UPLOADS_SUCCESS,
+     FILTER_TREE_SUCCESS, LOAD_TREE_SUCCESS, CHANGE_OPEN_SUCCESS, 
+     LOAD_WORDCLOUD_SUCCESS } from "../actions/index"
 
 const initialState = {
     selected_file: null,
@@ -31,7 +32,7 @@ function rootReducer(state = initialState, action) {
             law_tree: action.payload.tree.data,
         });
     }
-    if(action.type == LOAD_WORDCLOUD_SUCCESS) {
+    if(action.type === LOAD_WORDCLOUD_SUCCESS) {
         console.log(action.payload)
         return Object.assign({}, state, {
             law_wordcloud: action.payload.wordcloud

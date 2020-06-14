@@ -63,7 +63,7 @@ def is_capitulo(token):
 
 def is_seccion(token):
     token = token.strip()
-    pattern = re.compile('^Sección.*')
+    pattern = re.compile('^SRección.*')
     return pattern.match(token)
 
 

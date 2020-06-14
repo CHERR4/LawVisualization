@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Wordcloud } from '../components';
 //https://redux.js.org/advanced/async-actions
 export const SELECT_FILE_SUCCESS = "SELECT_FILE_SUCCESS";
 export const ADD_FILES = "ADD_FILES";
@@ -16,7 +15,6 @@ export const CHANGE_OPEN = "CHANGE_OPEN"
 export const CHANGE_OPEN_SUCCESS = "CHANGE_OPEN_SUCCESS"
 export const LOAD_WORDCLOUD_SUCCESS = "LOAD_WORDCLOUD_SUCCESS"
 export const LOAD_WORDCLOUD_FAILED = "LOAD_WORDCLOUD_FAILED"
-
 
 
 export function selectFile(payload) {
@@ -104,8 +102,11 @@ export function uploadFile(payload) {
 } 
 
 export function uploadFileSuccess(payload) {
-    return {
-        type: UPLOAD_FILE_SUCCESS, payload
+    console.log(payload.data.fileName)
+    return function(dispatch) {
+        dispatch(
+            selectFile({file: payload.data.fileName}),
+        );
     }
 }
 
@@ -144,20 +145,6 @@ export function loadWordcloud(payload) {
     return function(dispatch) {
         dispatch(loadWordcloudSuccess({"wordcloud": "http://localhost:5001/getWordcloud/" + payload.file}))
     }
-    /*
-    return function(dispatch) {
-        return axios.get("http://localhost:5001/getWordcloud/" + payload.file)
-        .then(wordcloud =>
-            dispatch(
-                loadWordcloudSuccess({"wordcloud": wordcloud, "file": payload.file}),
-            ),
-            error =>
-            dispatch(
-                loadWordcloudFailed(error)
-            )
-        )
-    };
-    */
 }
 
 export function loadWordcloudSuccess(payload) {
@@ -192,6 +179,27 @@ export function filterTree(payload) {
     }
 }
 
+export function filterRegexp(payload) {
+    console.log(payload)
+    const params = {
+        "document": payload.selectedFile,
+        "regexp": payload.filter,
+        "case_sensitive": payload.caseSensitive
+    };
+    return function(dispatch) {
+        return axios.get('http://localhost:5001/getFilterRegexp', { params })
+        .then(tree => 
+            dispatch(
+                filterTreeSuccess(tree),
+            ),
+            error => 
+            dispatch(
+                filterTreeFailed(error)
+            )
+        )
+    }
+}
+
 export function filterArticulos(payload) {
     console.log(payload)
     const params = {
@@ -201,6 +209,27 @@ export function filterArticulos(payload) {
     };
     return function(dispatch) {
         return axios.get('http://localhost:5001/getFilterArticulos', { params })
+        .then(tree => 
+            dispatch(
+                filterTreeSuccess(tree),
+            ),
+            error => 
+            dispatch(
+                filterTreeFailed(error)
+            )
+        )
+    }
+}
+
+export function filterWords(payload) {
+    console.log(payload)
+    const params = {
+        "document": payload.selectedFile,
+        "words": payload.filter,
+        "case_sensitive": payload.caseSensitive
+    };
+    return function(dispatch) {
+        return axios.get('http://localhost:5001/getFilterWords', { params })
         .then(tree => 
             dispatch(
                 filterTreeSuccess(tree),

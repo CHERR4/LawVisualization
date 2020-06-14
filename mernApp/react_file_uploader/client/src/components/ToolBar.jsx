@@ -7,22 +7,20 @@ import  SearchBox  from './SearchBox'
 const ToolBarApp = (props) => {
 
     return (
-        <div>
-            <Grid container justify="space-between">
-                <Grid item >
-                    <Grid container justify="flex-start">
-                        <Typography variant="h6" noWrap>
-                        Parlamento de Canarias
-                        </Typography>
-                    </Grid>
-                </Grid>
-                <Grid item>
-                    <Grid container justify="center">
-                        <SearchBox/>
-                    </Grid>
+        <Grid container justify="space-between" spacing={2}>
+            <Grid item xs={3} justify="flex-start">
+                <Grid container>
+                    <Typography variant="h6" noWrap>
+                    Parlamento de Canarias
+                    </Typography>
                 </Grid>
             </Grid>
-        </div>
+            <Grid item xs={9}>
+                <Grid container justify="flex-end">
+                    <SearchBox/>
+                </Grid>
+            </Grid>
+        </Grid>
     );
   }
   

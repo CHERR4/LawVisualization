@@ -1,22 +1,16 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
 
-const useStyles =  makeStyles((theme) => ({
-    root: {
-      margin: "auto",
-      marginTop: "5em",
-    },
-    
-  }));
 
 const PdfComponent = ({ pathToPdf }) => {
     console.log("pdfComponent: " + pathToPdf)
     console.log(pathToPdf)
-    const classes = useStyles();
     return (
-        <div className={classes.root}>
-            <embed height="1000" width="200%" src={pathToPdf} alt='' type="application/pdf" />
-        </div>
+      <Grid container alignItems="center" justify="center">
+        <Grid item xs={12} container alignItems="center" justify="center">
+          <embed height="1000em" width="50%" src={pathToPdf} alt='' type="application/pdf" />
+        </Grid>
+      </Grid>
     )
 }
 

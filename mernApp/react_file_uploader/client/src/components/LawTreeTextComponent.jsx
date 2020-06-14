@@ -1,9 +1,5 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import LawTreeTextNodeChildrenComponent  from './LawTreeTextNodeChildrenComponent';
 import Grid from '@material-ui/core/Grid';
 import { useSelector } from "react-redux";
@@ -46,11 +42,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     marginBottom: "0.7em",
   },
-  apartado: {
-    fontsize: "2em",
-    fontWeight: theme.typography.fontWeightRegular,
-    marginBottom: "0.7em",
-  }
 }));
 
 function isCapitulo(token) {
@@ -73,7 +64,11 @@ function isSeccion(token) {
 
 function isTitulo(token) {
   var regexp = /Título/
+  var regexp2 = /TÍTULO/
   var pos = token.search(regexp)
+  if(!(pos === 1 || pos === 0)) {
+    pos = token.search(regexp2)
+  }
   return pos === 1 || pos === 0
 }
 

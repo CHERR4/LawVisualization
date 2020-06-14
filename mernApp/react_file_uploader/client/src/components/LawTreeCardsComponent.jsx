@@ -7,14 +7,14 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import LawTreeCardNodeChildrenComponent from './LawTreeCardNodeChildrenComponent';
 import Grid from '@material-ui/core/Grid';
 import { useSelector } from "react-redux";
-import { Typography } from '@material-ui/core';
 
 
 // https://material-ui.com/es/components/expansion-panels/
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '1 00%',
+    width: '100%',
+    marginTop: '2em'
   },
   heading: {
     alignContent: "center",

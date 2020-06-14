@@ -1,4 +1,5 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
+import Grid from '@material-ui/core/Grid';
 import { connect } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles';
 import { uploadFile } from '../actions/index'
@@ -42,7 +43,7 @@ const ConnectedFileUpload = (props) => {
 
   return (
     <div className={classes.root}>
-      <Fragment>
+      <Grid>
         <form onSubmit={onSubmit}>
           <div className={'custom-file mb-4'}>
             <input
@@ -61,7 +62,7 @@ const ConnectedFileUpload = (props) => {
             className='btn btn-primary btn-block mt-4'
           />
         </form>
-      </Fragment>
+      </Grid>
     </div>
   );
 };

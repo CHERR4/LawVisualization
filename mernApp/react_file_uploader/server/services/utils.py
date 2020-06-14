@@ -1,6 +1,7 @@
 import re
 import nltk
 import pdftotext
+import time
 import pandas as pd
 from anytree import RenderTree, AnyNode
 from anytree.exporter import JsonExporter
@@ -19,99 +20,94 @@ def read_text_from_pfd(filepath):
 
 
 def clean_text(text):
-    # Remove multiple jumpline
-    text_arr = [line for line in text.split('\n') if line.strip() != '']
-    text = ""
-    for line in text_arr:
-        text += (line + "\n")
-    text = re.sub(r"Boletín O˜cial del Parlamento de Canarias", "", text)
-    text = re.sub(r"22 de septiembre de 2016", "", text)
-    text = re.sub(r"Núm. 291 / [0-9]+", "", text)
+    text = re.sub(r"[0-9]+ de [a-zA-Z]+ de [0-9][0-9][0-9][0-9] Boletín O˜cial del Parlamento de Canarias", "", text)
+    text = re.sub(r"[0-9]+ de [a-zA-Z]+ de [0-9][0-9][0-9][0-9] Boletín Oficial del Parlamento de Canarias", "", text)
+    text = re.sub(r"Boletín Oficial del Parlamento de Canarias [0-9]+ de [a-zA-Z]+ de [0-9][0-9][0-9][0-9]", "", text)
+    text = re.sub(r"12 de junio de 2018 Boletín Oficial del Parlamento de Canarias", "", text)   
+    # text = re.sub(r"22 de septiembre de 2016", "", text)
+    # Remove the number of page
+    text = re.sub(r"Núm. [0-9]+ / [0-9]+", "", text)
+    # Cleaning text format to tokenize
+    text = re.sub(r"\r", " ", text).replace(r"\n", " ")
+    single_whitespace = re.compile(r"\s+")
+    text = single_whitespace.sub(" ", text).strip()
     return text
-
-
-def manual_tokenize(text):
-    tokens = nltk.word_tokenize(text)
-    articulos = [""]
-    for i in range(len(tokens)):
-        token = tokens[i]
-        if (is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token)) and (i < len(tokens)-2 and ((tokens[i+1] != "o") and (tokens[i+1] != "habilitante") and (tokens[i+1] != "habilitantes") and (tokens[i+1] != "de"))):
-            articulos.append(token)
-        else:
-            articulos[len(articulos) - 1] += (' ' + token)
-    """
-    for token in tokens:
-        if is_titulo(token) or is_capitulo(token) or is_seccion(token) or is_articulo(token):
-            articulos.append(token)
-        else:
-            articulos[len(articulos) - 1] += (' ' + token)
-    """
-    return articulos
 
 
 def is_articulo(token):
     token = token.strip()
-    pattern = re.compile('^Artículo')
-    return pattern.match(token)
+    return re.match('^Artículo',token)
 
 
 def is_capitulo(token):
     token = token.strip()
-    pattern = re.compile('^Capítulo.*')
-    return pattern.match(token)
+    return re.match('^Capítulo.*', token)
 
 
 def is_seccion(token):
     token = token.strip()
-    pattern = re.compile('^Sección.*')
-    return pattern.match(token)
+    return re.match('^Sección.*', token)
 
 
 def is_titulo(token):
     token = token.strip()
-    pattern = re.compile('^Título.*')
-    pattern_2 = re.compile('^TÍTULO.*')
-    return pattern.match(token) or pattern_2.match(token)
-
-
-def tokenize_text(text):
-    # Cleaning text format to tokenize
-    single_whitespace = re.compile(r"\s+")
-    text = re.sub(r"\n", " ", text).replace("\r", " ")
-    text = single_whitespace.sub(" ", text).strip()
-    # Tokenization by common tokenizer
-    # Want to change for tokenization by important words
-    sentences = manual_tokenize(text)
-    # Getting important words, this is just for seeing that stract them correctly
-    # My objetive is to make a structure with all of them
-    articulos = filter(is_articulo, sentences)
-    secciones = filter(is_seccion, sentences)
-    capitulos = filter(is_capitulo, sentences)
-    titulos = filter(is_titulo, sentences)
-    return {'partes': sentences, 'articulos': articulos, 'secciones': secciones, 'capitulos': capitulos,
-            'titulos': titulos}
+    return re.match('^Título.*', token) or re.match('^TÍTULO.*', token)
 
 
 def subtokenize_token(token):
     subtokens = [""]
+    start_time = time.time()
     words = nltk.word_tokenize(token)
+    num_words = len(words)
+    duration = time.time() - start_time
+    print("Time transcurred: ", duration)
+    print("Num words: ", num_words)
+    num_words = len(words)
     count = 0
+    last_is_token = False
     for word in words:
-        if len(word) == 1 and count + 1 < len(words) and words[count + 1] == ')':
-            subtokens.extend(word)
-        elif word.isnumeric() and count > 1 and words[count - 1] == '.' and words[count -2] != 'Núm':
-            subtokens.extend(word)
+        word = word.strip()
+
+        """
+        word.splitlines()
+        word_encode = word.encode('utf-8')
+        
+        if re.match("[.].+".encode('utf-8'), word_encode, re.MULTILINE):
+            print(word)
+        if word[0] == '.' and len(word) > 1:
+            print(word)
+        # If word start by dot, I remove it
+        if re.match("^[.].+", word, re.MULTILINE):
+            print(word)
+            subtokens[len(subtokens) - 1] += '.'
+            word = word[1:]
+        """
+        if not last_is_token and (is_titulo(word) or is_capitulo(word) or is_seccion(word) or is_articulo(word)) and (count < len(words)-2 and ((words[count + 1] != "o") and (words[count + 1] != "habilitante") and (words[count + 1] != "habilitantes") and (words[count + 1] != "de"))):
+            subtokens.append(word)
+            last_is_token = True
+            # print(subtokens)
+        elif not last_is_token and len(word) == 1 and count + 1 < len(words) and count > 0 and words[count + 1] == ')' and word != '.' and words[count - 1] != 'letras' and words[count - 1] != ',' and words[count - 1] != 'letra' and words[count - 1] != 'y' and words[count - 1] != 'apartado':
+            subtokens.append(word)
+            last_is_token = True
+        elif not last_is_token and word.isnumeric() and count > 1 and count + 1 < len(words) and (words[count - 1][len(words[count - 1]) - 1] == '.' or words[count + 1] == '.') and words[count - 2] != 'Núm' and words[count - 2] != 'Grupo' and words[count - 1] != 'Natura':
+            subtokens.append(word)
+            last_is_token = True
+        elif not last_is_token and word == '–' and count > 1 and words[count - 1] == ':' and words[count - 1] != '.':
+            subtokens.append(word)
+            last_is_token = True
+        elif not last_is_token and re.match("[0-9]+[.][ªº]", word) and not is_seccion(words[count - 1]):
+            subtokens.append(word)
+            last_is_token = True
+        elif not last_is_token and word == 'Grupo':
+            subtokens.append(word)
+            last_is_token = True
         else:
             subtokens[len(subtokens) - 1] += (' ' + word)
+            if word != '.':
+                last_is_token = False
         count += 1
     return subtokens
 
-
-def subtokenize_text(tokens):
-    subtokens = []
-    for token in tokens:
-        subtokens.extend(subtokenize_token(token))
-    return subtokens
 
 def formatToken(token):
     token = re.sub(" [.]", ".", token)
@@ -151,14 +147,23 @@ def create_tokens_tree(tokens, file):
             last_seccion = None
             last_articulo = None
         elif is_seccion(token):
-            current_node = AnyNode(id=id, parent=last_capitulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
+            if last_capitulo is None:
+                if last_titulo is None:
+                    current_node = AnyNode(id=id, parent=root, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
+                else:
+                    current_node = AnyNode(id=id, parent=last_titulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
+            else:
+                current_node = AnyNode(id=id, parent=last_capitulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
             last_seccion = current_node
             last_articulo = None
         elif is_articulo(token):
             token = formatToken(token)
             if last_seccion is None:
                 if last_capitulo is None:
-                    current_node = AnyNode(id=id, parent=last_titulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
+                    if last_titulo is None:
+                        current_node = AnyNode(id=id, parent=root, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
+                    else:
+                        current_node = AnyNode(id=id, parent=last_titulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
                 else:
                     current_node = AnyNode(id=id, parent=last_capitulo, name=" ".join(token.split('.')[2:]), shortname=" ".join(token.split('.')[0:2]))
             else:
@@ -172,24 +177,11 @@ def create_tokens_tree(tokens, file):
     return root
 
 
-def tree_as_data_frame(tree):
-    df = pd.DataFrame(columns=["id", "text", "children"])
-    for _, _, node in RenderTree(tree):
-        children = []
-        # print(subnode)
-        for node2 in node.children:
-            children.append(node2.id)
-        dict = {"id": node.id, "text": node.name, "children": children}
-        df = df.append(dict, ignore_index=True)
-    return df
-
 
 def exporter_tree(tree):
     exporter = JsonExporter(indent=2)
     array = []
     for child in tree.children:
-        # print(child)
-        # print(exporter.export(child))
         array.append(exporter.export(child))
     return array
 
@@ -237,12 +229,10 @@ def search_node(tree, sentence):
     print(tokens)
     # this is because it introduces an space at first TODO fix
     if len(tokens) <= 1:
-        print(tree.children)
         nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.shortname))
         for node in nodes:
             for pre, fill, subnode in RenderTree(node, maxlevel=3):
                 print("%s%s" % (pre, subnode.name))
-        print(nodes)
         return len(nodes) > 0, nodes
     else:
         sentence = " "
@@ -253,6 +243,7 @@ def search_node(tree, sentence):
             if find:
                 return find, nodes
         return False, []
+
 
 def search_articulo(tree, sentence, case_sensitive):
     # nodes = findall(tree, filter_=lambda node: re.match(".*" + sentence + ".*", node.shortname + node.name), maxlevel=2)
@@ -271,26 +262,46 @@ def search_articulo(tree, sentence, case_sensitive):
             return True, node
     return False, None
 
-def search_word(tree, words, case_sensitive):
+
+def search_words(tree, words, case_sensitive):
     array_words = words.split()
-    for word in array_words:
-        if not case_sensitive and re.match(".*" + word + ".*", tree.shortname + tree.name, flags=re.IGNORECASE):
-            return True, tree
-        elif case_sensitive and re.match(".*" + word + ".*", tree.shortname + tree.name):
-            return True, tree
-        elif tree.children:
-            nodes = []
-            for node in tree.children:
-                find, nodeList = search_articulo(node, words, case_sensitive)
-                if find:
-                    nodes.append(nodeList)
-            if nodes:
-                node = AnyNode(id=tree.id, shortname=tree.shortname, name=tree.name, children=nodes)
-                return True, node
+    if not case_sensitive:
+        for word in array_words:
+            if re.match(".*" + word + ".*", tree.shortname + tree.name, flags=re.IGNORECASE):
+                return True, tree
+    elif case_sensitive:
+        for word in array_words:
+            if re.match(".*" + word + ".*", tree.shortname + tree.name):
+                return True, tree
+    if tree.children:
+        nodes = []
+        for node in tree.children:
+            find, nodeList = search_words(node, words, case_sensitive)
+            if find:
+                nodes.append(nodeList)
+        if nodes:
+            node = AnyNode(id=tree.id, shortname=tree.shortname, name=tree.name, children=nodes)
+            return True, node
     return False, None
 
 
-def formatTree(tree):
-    for token in tree:
-        print("hola")
-    return tree
+def search_regexp(tree, regexp, case_sensitive):
+    pattern_sensitive = re.compile(regexp)
+    pattern_no_sensitive = re.compile(regexp, flags=re.IGNORECASE)
+
+    if case_sensitive and pattern_sensitive.match((tree.shortname + tree.name).strip()):
+        print("Found!")
+        return True, tree
+    elif not case_sensitive and pattern_no_sensitive.match((tree.shortname + tree.name).strip()):
+        print("Found!")
+        return True, tree
+    elif tree.children:
+        nodes = []
+        for node in tree.children:
+            find, nodeList = search_regexp(node, regexp, case_sensitive)
+            if find:
+                nodes.append(nodeList)
+        if nodes:
+            node = AnyNode(id=tree.id, shortname=tree.shortname, name=tree.name, children=nodes)
+            return True, node
+    return False, None    

@@ -10,7 +10,6 @@ import { LawWordcloudComponent } from '../components/index';
 const useStyles = makeStyles({
     root: {
         marginTop: "0em",
-        marginLeft: "0em",
         flexGrow:1,
         alignContent: "center"
     }
