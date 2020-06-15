@@ -8,6 +8,11 @@ from anytree.exporter import JsonExporter
 from nltk.corpus import gutenberg, nps_chat, stopwords
 from anytree.search import find, find_by_attr, findall
 from wordcloud import WordCloud
+from collections import OrderedDict
+
+num_map = [(1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'), (100, 'C'), (90, 'XC'),
+           (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')]
+
 
 
 def read_text_from_pfd(filepath):
@@ -206,7 +211,35 @@ def print_wordcloud(text, document):
     wc.to_file("outputs/" + document + ".png")
     return document + ".png"
 
+def process_query(text):
+    text = re.sub("artículo", "Artículo", text)
+    text = re.sub("articulo", "Artículo", text)
+    text = re.sub("Articulo", "Artículo", text)
+    text = re.sub("sección", "Sección", text)
+    text = re.sub("seccion", "Sección", text)
+    text = re.sub("Seccion", "Sección", text)
+    text = re.sub("capítulo", "Capítulo", text)
+    text = re.sub("capitulo", "Capítulo", text)
+    text = re.sub("Capitulo", "Capítulo", text)
+    text = re.sub("título", "Título", text)
+    text = re.sub("titulo", "Título", text)
+    text = re.sub("Titulo", "Título", text)
+    return text
+
+def num2roman(num):
+    num = int(num)
+    roman = ''
+
+    while num > 0:
+        for i, r in num_map:
+            while num >= i:
+                roman += r
+                num -= i
+
+    return roman
+
 def manual_tokenize_query(text):
+    text = process_query(text)
     tokens = nltk.word_tokenize(text)
     articulos = [""]
     last_is_token = False
@@ -227,12 +260,22 @@ def search_node(tree, sentence):
     tokens = manual_tokenize_query(sentence)
     tokens = tokens[1:len(tokens)]
     print(tokens)
+    cleaned_tokens = []
+    for token in tokens:
+        if (is_titulo(token) and re.match("^Título [0-9]+", token)) or (is_capitulo(token) and re.match("^Capítulo [0-9]+", token)):
+            print(token)
+            split = token.split()
+            split[1] = num2roman(split[1])
+            token = " ".join(split)
+            print(token)
+        cleaned_tokens.append(token)
+    tokens = cleaned_tokens
     # this is because it introduces an space at first TODO fix
     if len(tokens) <= 1:
-        nodes = findall(tree, filter_=lambda node: re.match("^ " + tokens[0] + " ", node.shortname))
+        nodes = findall(tree, filter_=lambda node: re.match("^" + tokens[0] + " ", node.shortname))
         for node in nodes:
             for pre, fill, subnode in RenderTree(node, maxlevel=3):
-                print("%s%s" % (pre, subnode.name))
+                print("%s%s" % (pre, subnode.shortname))
         return len(nodes) > 0, nodes
     else:
         sentence = " "
@@ -241,7 +284,9 @@ def search_node(tree, sentence):
         for node in nodes:
             find, nodes = search_node(node, sentence)
             if find:
-                return find, nodes
+                print(nodes)
+                node_result = AnyNode(shortname=node.shortname, name=node.name, children=nodes)
+                return find, [node_result]
         return False, []
 
 
